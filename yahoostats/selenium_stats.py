@@ -6,6 +6,14 @@ import time
 from pprint import pprint as pp
 
 
+firefox_options = Options()
+firefox_options.add_argument("--headless")
+firefox_options.add_argument('--no-sandbox')
+FIRE_OPT = firefox_options
+YAHOO_URL = f'https://finance.yahoo.com/quote'
+PATH_GECKO = '/usr/local/bin'
+
+
 class Webscraper:
     def __init__(self, url, path_to_geckodriver, firefox_options):
         self._url = url
@@ -40,7 +48,7 @@ class Webscraper:
             print('Unable to stop the Webscraper.')
             print(exe)
 
-    def get_statistics(self, stock_list):
+    def get_yahoo_statistics(self, stock_list):
         stock_data = {}
         for stock in stock_list:
             print(f'Start webscraping {stock}')
@@ -65,6 +73,29 @@ class Webscraper:
 
         return stock_data
 
+    def get_yahoo_list_stocks(self, stock_list):
+
+        result = self.get_yahoo_statistics(stock_list)
+        pp(result)
+        row_list = list()
+        for i in stock_list:
+            revenue = result[i].get('Revenue (ttm)')
+            peg = result[i].get('PEG Ratio (5 yr expected) 1')
+            eps = result[i].get('Diluted EPS (ttm)')
+            current_ratio = result[i].get('Current Ratio (mrq)')
+            qeg = result[i].get('Quarterly Earnings Growth (yoy)')
+            price_book = result[i].get('Price/Book (mrq)')
+            oper_cash_flow = result[i].get('Operating Cash Flow (ttm)')
+            net_income = result[i].get('Net Income Avi to Common (ttm)')
+            beta = result[i].get('Beta (5Y Monthly) ')
+            row = [i, revenue, net_income, oper_cash_flow, peg, eps,
+                   current_ratio, qeg, price_book, beta]
+            row_list.append(row)
+        column_list = ['stock', 'revenue', 'net_income', 'oper_cash_flow', 'peg', 'eps',
+                       'current_ratio', 'qeg', 'price_book', 'beta']
+        df_ys = pd.DataFrame(row_list, columns=column_list)
+        return df_ys
+
     def scroll(self, px):
         self.__driver.execute_script(f"window.scrollTo(0, {px})")
         print(f"Scrolled with {px} px")
@@ -87,19 +118,15 @@ class Webscraper:
             return False
 
 
-if __name__ == "__main__":
-    firefox_options = Options()
-    firefox_options.add_argument("--headless")
-    firefox_options.add_argument('--no-sandbox')
-    url = f'https://finance.yahoo.com/quote'
-    path_to_geckodriver = '/usr/local/bin'
-    stock_list = ['GOOGL', 'GTT', 'VMW']
-    yh = Webscraper(url, path_to_geckodriver, firefox_options)
+def ys_run(stock_list):
+    yh = Webscraper(YAHOO_URL, PATH_GECKO, FIRE_OPT)
     yh.start()
     yh.accept_cockies()
-    result = yh.get_statistics(stock_list)
-    pp(result)
-    for i in stock_list:
-        peg_stock_0 = result[i].get('PEG Ratio (5 yr expected) 1')
-        print(f"PEG Ratio of {i} is {peg_stock_0}")
+    result_df = (yh.get_yahoo_list_stocks(stock_list))
     yh.stop()
+    return result_df
+
+
+if __name__ == "__main__":
+    stock_list = ['GOOGL', 'GTT', 'VMW', 'AMD', 'NVDA', 'TSLA', 'IBM', 'DELL']
+    ys_run(stock_list)
