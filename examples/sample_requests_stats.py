@@ -18,6 +18,7 @@ from pprint import pprint as pp
 
 proxies = {}
 ticker = 'GOOGL'
+stock_list = ['GOOGL', 'GTT', 'VMW', 'AMD', 'NVDA', 'TSLA', 'IBM', 'DELL', 'INTC', 'MU']
 # locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 # print(locale.getlocale(0))
 # locale.setlocale(locale.LC_ALL, 'en_US.utf8')
@@ -80,13 +81,16 @@ Credits : https://github.com/Gunjan933/stock-market-scraper/blob/master/stock-ma
 
 cashflowStatementHistory
 
-current_price = ['currentPrice']
+current_price = ['financialData']['currentPrice']
 target_price = ['financialData']['targetMeanPrice']
-yahoo_ratin = ['financialData']['recommendationMean']
+yahoo_rating = ['financialData']['recommendationMean']
 """
 
 
 def get_page_content(url):
+    """
+    Function to get Beautifulsoup from provided url with requests.
+    """
     s = requests.Session()
     # s.post(url, cockie)
     res = s.get(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -184,6 +188,7 @@ def reuters_stats(ticker, exchange):
 
 def morningstar_stats(ticker):
     """
+    Function to get stock stars rrating from MorningStar.
     https://www.morningstar.com/stocks/xnas/googl/valuation
     https://financials.morningstar.com/ratios/r.html?t=0P0000006A&culture=en&platform=sal
     https://financials.morningstar.com/ratios/r.html?t=GOOGL
@@ -192,11 +197,19 @@ def morningstar_stats(ticker):
     <div> class ='r_title'
     <span> id ='star_span'
     """
-    pass
+    url = f"https://financials.morningstar.com/ratios/r.html?t={ticker}&culture=en&platform=sal"
+    soup_ms = get_page_content(url)
+    try:
+        start_rating = soup_ms.find('span', {'id': "star_span"})
+        return {'ms': start_rating["class"][0]}
+    except Exception as exe:
+        print(exe)
+        return None
 
 
 def zacks_stats(ticker):
     """
+    Get Zacks start rating for specific stock.
     https://www.zacks.com/stock/chart/GTT/fundamental/peg-ratio-ttm
     https://www.zacks.com/stock/quote/GOOGL/financial-overview
     https://www.zacks.com/stock/quote/TSLA/financial-overview
@@ -209,11 +222,78 @@ def zacks_stats(ticker):
     rating_div = soup_zack.find('div', {'class': 'zr_rankbox'})
     rating_label = rating_div.find('p')
     rating_value = rating_label.text
-    print(rating_value.strip())
-    return {ticker: rating_value.strip()}
+    return {'zacks': rating_value.split()[0]}
+
+
+def yahoo_api_financials(ticker):
+    """
+    Get the data from Yahoo API
+     Will add later:
+    -Revenue
+    -Net income
+    -Free Cash flow from operations
+    -ROE
+    -Divident yeld
+    -LTG Long-Term Growth (LTG) - https://www.investopedia.com/terms/l/longtermgrowth.asp
+    -Return on Assets %
+    -Return on Equity %
+    """
+    url = f'https://query1.finance.yahoo.com/v10/finance/quoteSummary/{ticker}?modules=' \
+        + 'financialData%2CdefaultKeyStatistics'
+    resp = requests.get(url)
+    data = resp.json()
+    data = data['quoteSummary']['result'][0]['financialData']
+    current_price = data['currentPrice']['raw']
+    target_price = data['targetMeanPrice']['raw']
+    yahoo_rating_val = data['recommendationMean']['raw']
+    yahoo_rating_str = data['recommendationKey']
+    yahoo_valuation = float(target_price) / float(current_price)
+    yahoo_current_ratio = data['currentRatio']['raw']
+    result = {'yf_pr_now': current_price,
+              'yf_pr_trg': target_price,
+              'yf_rv': yahoo_rating_val,
+              'yf_rs': yahoo_rating_str,
+              'yf_prof': yahoo_valuation,
+              'yf_cur_ratio': yahoo_current_ratio}
+    return result
+
+
+def tipranks(ticker):
+    """
+    https://www.tipranks.com/stocks/amd/stock-analysis
+    https://www.tipranks.com/stocks/amd/price-target
+
+    price - target value
+    <div class="client-components-stock-research-analysts-price-target-style__actualMoney">
+
+    <div class="client-components-stock-research-analysts-price-target-style__change">
+    """
+    url_tr = f'https://www.tipranks.com/stocks/{ticker}/price-target'
+    soup_tr = get_page_content(url_tr)
+    print(soup_tr)
+    print("JS content need to use Selenium")
+    return None
+
+
+def combine_stats(ticker_list):
+    stock_data = {}
+    for stock in stock_list:
+        stock_data.update({stock: {}})
+        yf_rate = yahoo_api_financials(stock)
+        ms_rate = morningstar_stats(stock)
+        zs_rate = zacks_stats(stock)
+        stock_data[stock].update(yf_rate)
+        stock_data[stock].update(ms_rate)
+        stock_data[stock].update(zs_rate)
+
+    return stock_data
 
 
 # yf_stats(ticker)
 # pp(reuters_stats(ticker, 'O'))
-# zacks_stats(ticker)
-yf_proxy_json(ticker)
+# print(zacks_stats(ticker))
+# pp(yahoo_api_financials(ticker))
+pp(combine_stats(stock_list))
+# print(tipranks(ticker))
+# yf_proxy_json(ticker)
+# morningstar_stats(ticker)
