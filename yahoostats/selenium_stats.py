@@ -3,7 +3,12 @@ from selenium.webdriver.firefox.options import Options
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
+import configparser
 from pprint import pprint as pp
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+print(config.sections())
 
 
 firefox_options = Options()
@@ -73,6 +78,44 @@ class Webscraper:
 
         return stock_data
 
+    def tipranks(self, ticker):
+        """
+        https://www.tipranks.com/stocks/amd/stock-analysis
+        https://www.tipranks.com/stocks/amd/price-target
+        http://theautomatic.net/2019/01/19/scraping-data-from-javascript-webpage-python/
+        price - target value
+        <div class="client-components-stock-research-analysts-price-target-style__actualMoney">
+
+        <div class="client-components-stock-research-analysts-price-target-style__change">
+        """
+
+        url_tr = f'https://www.tipranks.com/stocks/{ticker}/price-target'
+        self.__driver.get(url_tr)
+        html = self.__driver.execute_script('return document.body.innerHTML;')
+        soup = BeautifulSoup(html, "html.parser")
+        div_target_pr = soup.find('div', {
+            'class': "client-components-stock-research-analysts-price-target-style__actualMoney"})
+        print("JS content need to use Selenium")
+        target_pr = div_target_pr.find('span')['title']
+        # div_target_prof = soup.find('div', {
+        #     'client-components-stock-research-analysts-price-target-style__change'})
+        # print(div_target_prof)
+        # target_change = div_target_prof.find('strong')
+        # target_change_lbl = div_target_prof.text
+        # print(target_change_lbl)
+        # session = HTMLSession()
+        # r = session.get(url_tr)
+        # r.html.render()
+        # print(data)
+        return target_pr
+
+    def simplywall(self, ticker):
+        """
+        https://simplywall.st/stocks/us/media/nasdaq-goog.l/alphabet
+        https://simplywall.st/stocks/us/software/nyse-gtt/gtt-communications
+        """
+        pass
+
     def get_yahoo_list_stocks(self, stock_list):
 
         result = self.get_yahoo_statistics(stock_list)
@@ -127,6 +170,15 @@ def ys_run(stock_list):
     return result_df
 
 
+def tr_run():
+    tr = Webscraper(YAHOO_URL, PATH_GECKO, FIRE_OPT)
+    tr.start()
+    result_df = (tr.tipranks('GOOGL'))
+    tr.stop()
+    return result_df
+
+
 if __name__ == "__main__":
     stock_list = ['GOOGL', 'GTT', 'VMW', 'AMD', 'NVDA', 'TSLA', 'IBM', 'DELL']
-    ys_run(stock_list)
+    # ys_run(stock_list)
+    print(tr_run())

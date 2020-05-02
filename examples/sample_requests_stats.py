@@ -13,6 +13,7 @@ from time import sleep
 import pickle
 import json
 from pprint import pprint as pp
+from requests_html import HTMLSession
 # import locale
 
 
@@ -84,6 +85,8 @@ cashflowStatementHistory
 current_price = ['financialData']['currentPrice']
 target_price = ['financialData']['targetMeanPrice']
 yahoo_rating = ['financialData']['recommendationMean']
+
+https://yahoo.brand.edgar-online.com/default.aspx?companyid=976409
 """
 
 
@@ -157,18 +160,38 @@ def yf_proxy_json(ticker, proxies=None):
         return None
 
 
-def reuters_stats(ticker, exchange):
+def reuters_stats(ticker):
     """
     Function to get data from Thompson Reuters"
     https://www.reuters.com/finance/stocks/lookup?searchType=any&comSortBy=marketcap&search="COMPANY"
     https://www.reuters.com/companies/GOOGL.O/key-metrics
+    https://www.reuters.com/companies/IBM/key-metrics
+    O - NASDAQ
+    OQ - NASDAQ Stock Exchange Global Select Market
+    N - NEWYORK Stock Exchange
+    ""or without specified exchange - NEWYORK CONSOLIDATED
     """
-
-    url = f"https://www.reuters.com/companies/{ticker}.{exchange}/key-metrics"
-    soup1 = get_page_content(url)
+    exchanges = ['', '.OQ', '.O', '.N']
+    for exchange in exchanges:
+        url = f"https://www.reuters.com/companies/{ticker}{exchange}/key-metrics"
+        s = requests.Session()
+        res = s.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        used_exchange = ''
+        if res.status_code == requests.codes['ok']:
+            html = soup(res.text, 'lxml')
+            title = html.title.text
+            print(title)
+            if 'Page Not Found' in title:
+                continue
+            elif ticker in title:
+                soup1 = soup(res.content, "lxml")
+                used_exchange = exchange
+                break
+        soup1 = get_page_content(url)
     try:
         df = {}
         df.update({ticker: {}})
+        df[ticker].update({"exchange": used_exchange})
         for table in soup1.findAll('div', {'class': "KeyMetrics-table-container-3wVZN"}):
             for h3 in table.findAll('h3'):
                 print(h3.text)
@@ -179,6 +202,21 @@ def reuters_stats(ticker, exchange):
                 if keys and values:
                     print({keys[0].text: values[0].text})
                     df[ticker].update({keys[0].text: values[0].text})
+        "EPS Growth Rate (5Y)"
+        'EPS Growth Rate (3Y)'
+        'Dividend Growth Rate (3Y)'
+        'Return on Investment (TTM)'
+        'Return on Investment (5Y)'
+        'Beta'
+        'Current Ratio (Annual)'
+        'Market Capitalization'
+        'EPS Normalized (Annual)'
+        'Dividend Yield (5Y)'
+        'Dividend Yield'
+        'Revenue/Employee (TTM)'
+        'Net Income/Employee (TTM)'
+        'Net Debt (Annual)'
+        'Net Income Available to Common Normalized (Annual)'
     except Exception as exe:
         print(exe)
         print('Wetsite {url} changed need to edit the function.')
@@ -242,37 +280,27 @@ def yahoo_api_financials(ticker):
         + 'financialData%2CdefaultKeyStatistics'
     resp = requests.get(url)
     data = resp.json()
-    data = data['quoteSummary']['result'][0]['financialData']
-    current_price = data['currentPrice']['raw']
-    target_price = data['targetMeanPrice']['raw']
-    yahoo_rating_val = data['recommendationMean']['raw']
-    yahoo_rating_str = data['recommendationKey']
+    fin_data = data['quoteSummary']['result'][0]['financialData']
+    current_price = fin_data['currentPrice'].get('raw')
+    target_price = fin_data['targetMeanPrice'].get('raw')
+    yahoo_rating_val = fin_data['recommendationMean'].get('raw')
+    yahoo_rating_str = fin_data['recommendationKey']
     yahoo_valuation = float(target_price) / float(current_price)
-    yahoo_current_ratio = data['currentRatio']['raw']
+    yahoo_current_ratio = fin_data['currentRatio'].get('raw')
+    y_return_assets = fin_data['returnOnAssets'].get('raw') * 100
+    y_return_equity = fin_data['returnOnEquity'].get('raw') * 100
+    bs_data = data['quoteSummary']['result'][0]['defaultKeyStatistics']
+    beta = bs_data['beta'].get('raw')
     result = {'yf_pr_now': current_price,
               'yf_pr_trg': target_price,
               'yf_rv': yahoo_rating_val,
               'yf_rs': yahoo_rating_str,
               'yf_prof': yahoo_valuation,
-              'yf_cur_ratio': yahoo_current_ratio}
+              'yf_cur_ratio': yahoo_current_ratio,
+              'yf_ret_assets': y_return_assets,
+              'yf_ret_equity': y_return_equity,
+              'yf_beta': beta}
     return result
-
-
-def tipranks(ticker):
-    """
-    https://www.tipranks.com/stocks/amd/stock-analysis
-    https://www.tipranks.com/stocks/amd/price-target
-
-    price - target value
-    <div class="client-components-stock-research-analysts-price-target-style__actualMoney">
-
-    <div class="client-components-stock-research-analysts-price-target-style__change">
-    """
-    url_tr = f'https://www.tipranks.com/stocks/{ticker}/price-target'
-    soup_tr = get_page_content(url_tr)
-    print(soup_tr)
-    print("JS content need to use Selenium")
-    return None
 
 
 def combine_stats(ticker_list):
@@ -293,7 +321,9 @@ def combine_stats(ticker_list):
 # pp(reuters_stats(ticker, 'O'))
 # print(zacks_stats(ticker))
 # pp(yahoo_api_financials(ticker))
-pp(combine_stats(stock_list))
-# print(tipranks(ticker))
+# webscraped_data = combine_stats(stock_list)
+# pp(webscraped_data)
+
 # yf_proxy_json(ticker)
 # morningstar_stats(ticker)
+# reuters_stats(ticker)

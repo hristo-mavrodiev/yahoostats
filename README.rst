@@ -63,4 +63,7 @@ Install python requirements on venv
 
 .. code:: bash
 
+    alias python=python3
+    python -m venv env
+    source env/bin/activate
     pip install -r requirements.txt
