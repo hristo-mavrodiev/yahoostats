@@ -59,8 +59,7 @@ class Webscraper:
             print(f'Start webscraping {stock}')
             stock_url = f"{self._url}/{stock}/key-statistics?p={stock}"
             self.__driver.get(stock_url)
-            html = self.__driver.execute_script('return document.body.innerHTML;')
-            soup = BeautifulSoup(html, "html.parser")
+            soup = BeautifulSoup(self.__driver.page_source, "html.parser")
             stock_data.update({stock: {}})
             if "Symbols similar to" in soup.get_text():
                 print(f'The stock - {stock} was not found in Yahoo Finance.')
@@ -78,9 +77,38 @@ class Webscraper:
 
         return stock_data
 
-    def tipranks(self, ticker):
+    def tipranks_analysis(self, ticker):
         """
         https://www.tipranks.com/stocks/amd/stock-analysis
+        """
+        url_tr = f'https://www.tipranks.com/stocks/{ticker}/stock-analysis'
+        self.__driver.get(url_tr)
+        time.sleep(1)
+        soup = BeautifulSoup(self.__driver.page_source, "html.parser")
+        data = {}
+
+        try:
+            div_tr_score = soup.find('div', {
+                'class': "client-components-ValueChange-shape__Octagon"})
+            text_tr_score = div_tr_score.find('tspan').text + "/10"
+            data.update({'tr_score': text_tr_score})
+
+            div_boxes = soup.find_all('div', {
+                'class': ("client-components-stock-research-smart-score-Factor-"
+                          "Factor__Factor")
+            })
+            for box in div_boxes[:8]:
+                k = "tr_" + box.find('header').text
+                v = box.find_all('div')[0].find_all('div')[0].text
+                data.update({k: v})
+        except Exception as exe:
+            print(exe)
+
+        return data
+
+    def tipranks_price(self, ticker):
+        """
+        Webscrape price prediction for the next 12 months.
         https://www.tipranks.com/stocks/amd/price-target
         http://theautomatic.net/2019/01/19/scraping-data-from-javascript-webpage-python/
         price - target value
@@ -90,24 +118,23 @@ class Webscraper:
         """
 
         url_tr = f'https://www.tipranks.com/stocks/{ticker}/price-target'
+        target_pr, target_change = None, None
         self.__driver.get(url_tr)
-        html = self.__driver.execute_script('return document.body.innerHTML;')
-        soup = BeautifulSoup(html, "html.parser")
-        div_target_pr = soup.find('div', {
-            'class': "client-components-stock-research-analysts-price-target-style__actualMoney"})
-        print("JS content need to use Selenium")
-        target_pr = div_target_pr.find('span')['title']
-        # div_target_prof = soup.find('div', {
-        #     'client-components-stock-research-analysts-price-target-style__change'})
-        # print(div_target_prof)
-        # target_change = div_target_prof.find('strong')
-        # target_change_lbl = div_target_prof.text
-        # print(target_change_lbl)
-        # session = HTMLSession()
-        # r = session.get(url_tr)
-        # r.html.render()
-        # print(data)
-        return target_pr
+        time.sleep(2)
+        soup = BeautifulSoup(self.__driver.page_source, "html.parser")
+
+        try:
+            div_target_pr = soup.find('div', {
+                'class': "client-components-stock-research-analysts-price-target-style__actualMoney"})
+            target_pr = div_target_pr.find('span')['title']
+
+            div_target_prof = soup.find(
+                'div', {"class": "client-components-stock-research-analysts-price-target-style__change"})
+            target_change = div_target_prof.find('span').text
+        except Exception as exe:
+            print(f"Website changed {exe}")
+
+        return {"tr_target_pr": target_pr, "tr_change": target_change}
 
     def simplywall(self, ticker):
         """
@@ -170,10 +197,11 @@ def ys_run(stock_list):
     return result_df
 
 
-def tr_run():
+def tr_run(ticker):
     tr = Webscraper(YAHOO_URL, PATH_GECKO, FIRE_OPT)
     tr.start()
-    result_df = (tr.tipranks('GOOGL'))
+    result_df = tr.tipranks_analysis((ticker))
+    result_df.update(tr.tipranks_price((ticker)))
     tr.stop()
     return result_df
 
@@ -181,4 +209,4 @@ def tr_run():
 if __name__ == "__main__":
     stock_list = ['GOOGL', 'GTT', 'VMW', 'AMD', 'NVDA', 'TSLA', 'IBM', 'DELL']
     # ys_run(stock_list)
-    print(tr_run())
+    pp(tr_run('GOOGL'))

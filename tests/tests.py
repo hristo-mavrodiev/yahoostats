@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from yahoostats.selenium_stats import Webscraper, ys_run
 from yahoostats.selenium_stats import FIRE_OPT, PATH_GECKO, YAHOO_URL
+from yahoostats.evaluator import combine_stats
 
 
 class TestMethods(unittest.TestCase):
@@ -36,6 +37,13 @@ class TestMethods(unittest.TestCase):
         """
         stock_list = ['GOOGL']
         self.assertTrue(ys_run(stock_list) is not None)
+
+    def test_evaluator(self):
+        """
+        Test of merging requests with selenium data
+        """
+        stock_list = ['GOOGL', 'MU']
+        self.assertTrue(combine_stats(stock_list) is not None)
 
 
 # if __name__ == '__main__':

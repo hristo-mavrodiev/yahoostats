@@ -67,3 +67,13 @@ Install python requirements on venv
     python -m venv env
     source env/bin/activate
     pip install -r requirements.txt
+
+
+Quick start
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: Python
+
+    from yahoostats.evaluator import combine_stats
+    stocklist = ['GOOGL', 'TSLA', 'AMD']
+    combine_stats(stocklist)
