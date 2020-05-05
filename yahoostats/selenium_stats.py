@@ -1,5 +1,5 @@
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
@@ -11,23 +11,22 @@ config.read('config.ini')
 print(config.sections())
 
 
-firefox_options = Options()
-firefox_options.add_argument("--headless")
-firefox_options.add_argument('--no-sandbox')
-FIRE_OPT = firefox_options
+browser_options = Options()
+browser_options.add_argument("--headless")
+browser_options.add_argument('--no-sandbox')
+BROWSER_OPT = browser_options
 YAHOO_URL = f'https://finance.yahoo.com/quote'
-PATH_GECKO = '/usr/local/bin'
 
 
 class Webscraper:
-    def __init__(self, url, path_to_geckodriver, firefox_options):
+    def __init__(self, url, browser_options):
         self._url = url
-        self._path_to_geckodriver = path_to_geckodriver
-        self.firefox_options = firefox_options
+
+        self.browser_options = browser_options
         self.__driver = None
 
     def start(self):
-        self.__driver = webdriver.Firefox(self._path_to_geckodriver, options=self.firefox_options)
+        self.__driver = webdriver.Chrome(options=self.browser_options)
         self.__driver.get(self._url)
         time.sleep(1)
         print('Webdriver Started')
@@ -176,8 +175,7 @@ class Webscraper:
 
     def test_run(self):
         try:
-            browser = webdriver.Firefox(
-                self._path_to_geckodriver, options=self.firefox_options)
+            browser = webdriver.Chrome(options=self.browser_options)
             browser.get(self._url)
             print('Successful test run')
             browser.close()
@@ -189,7 +187,7 @@ class Webscraper:
 
 
 def ys_run(stock_list):
-    yh = Webscraper(YAHOO_URL, PATH_GECKO, FIRE_OPT)
+    yh = Webscraper(YAHOO_URL, BROWSER_OPT)
     yh.start()
     yh.accept_cockies()
     result_df = (yh.get_yahoo_list_stocks(stock_list))
@@ -198,7 +196,7 @@ def ys_run(stock_list):
 
 
 def tr_run(ticker):
-    tr = Webscraper(YAHOO_URL, PATH_GECKO, FIRE_OPT)
+    tr = Webscraper(YAHOO_URL, BROWSER_OPT)
     tr.start()
     result_df = tr.tipranks_analysis((ticker))
     result_df.update(tr.tipranks_price((ticker)))

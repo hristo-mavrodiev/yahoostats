@@ -1,8 +1,7 @@
 import unittest
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
 from yahoostats.selenium_stats import Webscraper, ys_run
-from yahoostats.selenium_stats import FIRE_OPT, PATH_GECKO, YAHOO_URL
+from yahoostats.selenium_stats import BROWSER_OPT, YAHOO_URL
 from yahoostats.evaluator import combine_stats
 
 
@@ -15,7 +14,7 @@ class TestMethods(unittest.TestCase):
         """
         Test Selenium webdriver is running
         """
-        browser = webdriver.Firefox(PATH_GECKO, options=FIRE_OPT)
+        browser = webdriver.Chrome(options=BROWSER_OPT)
         browser.get('http://google.com/')
         title = browser.title
         page_source = browser.page_source
@@ -28,7 +27,7 @@ class TestMethods(unittest.TestCase):
         """
         Test Webscraper class-testrun()
         """
-        ys = Webscraper(YAHOO_URL, PATH_GECKO, FIRE_OPT)
+        ys = Webscraper(YAHOO_URL, BROWSER_OPT)
         self.assertTrue(ys.test_run())
 
     def test_yahoo_list_stats_df(self):

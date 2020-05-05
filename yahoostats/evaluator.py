@@ -3,7 +3,7 @@ from yahoostats.requests_stats import yahoo_api_financials, morningstar_stats
 from yahoostats.requests_stats import zacks_stats, filter_reuters, reuters_stats
 import configparser
 from pprint import pprint as pp
-from yahoostats.selenium_stats import FIRE_OPT, PATH_GECKO, YAHOO_URL
+from yahoostats.selenium_stats import BROWSER_OPT, YAHOO_URL
 import time
 import pandas as pd
 
@@ -21,7 +21,7 @@ def combine_stats(stock_list):
     Merge the data from requests and selenium into pandas df.
     """
     stock_data = {}
-    tr = Webscraper(YAHOO_URL, PATH_GECKO, FIRE_OPT)
+    tr = Webscraper(YAHOO_URL, BROWSER_OPT)
     tr.start()
     for stock in stock_list:
         stock_data.update({stock: {}})
@@ -43,7 +43,7 @@ def combine_stats(stock_list):
     tr.stop()
 
     pd_df = pd.DataFrame(stock_data)
-    return pd_df
+    return pd_df.T
 
 
 if __name__ == "__main__":

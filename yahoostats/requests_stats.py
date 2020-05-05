@@ -17,10 +17,10 @@ def get_page_content(url):
     """
     Function to get Beautifulsoup from provided url with requests.
     """
-    sleep(0.25)
+    sleep(1)
     s = requests.Session()
-    s.mount('http://', HTTPAdapter(max_retries=5))
-    s.mount('https://', HTTPAdapter(max_retries=5))
+    s.mount('http://', HTTPAdapter(max_retries=10))
+    s.mount('https://', HTTPAdapter(max_retries=10))
     try:
         res = s.get(url, headers={"User-Agent": "Mozilla/5.0"})
         if res.status_code == requests.codes['ok']:
@@ -51,7 +51,7 @@ def reuters_stats(ticker):
         if res.status_code == requests.codes['ok']:
             html = soup(res.text, "html.parser")
             title = html.title.text
-            print(title)
+            print(f'Trying with {ticker} on {exchange} -> {title}')
             if 'Page Not Found' in title:
                 continue
             elif ticker in title:

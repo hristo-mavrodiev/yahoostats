@@ -49,14 +49,22 @@ Webscrape yahoo statistics tab
 
 Install system requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For Firefox
 
 .. code:: bash
 
-    sudo apt-get update  
+    sudo apt-get update
     sudo apt-get install firefox wget
     wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz  
     tar -xvzf geckodriver-v0.26.0-linux64.tar.gz   
     sudo cp geckodriver /usr/local/bin/
+
+For Chrome
+
+.. code:: bash
+
+    sudo apt-get update
+    sudo apt-get install chromium chromium-driver
 
 Install python requirements on venv
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
