@@ -19,8 +19,11 @@ def get_page_content(url):
     """
     sleep(1)
     s = requests.Session()
-    s.mount('http://', HTTPAdapter(max_retries=10))
-    s.mount('https://', HTTPAdapter(max_retries=10))
+    retries = Retry(total=10,
+                    backoff_factor=0.3,
+                    status_forcelist=[500, 502, 503, 504])
+    s.mount('http://', HTTPAdapter(max_retries=retries))
+    s.mount('https://', HTTPAdapter(max_retries=retries))
     try:
         res = s.get(url, headers={"User-Agent": "Mozilla/5.0"})
         if res.status_code == requests.codes['ok']:

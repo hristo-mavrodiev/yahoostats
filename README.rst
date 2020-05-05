@@ -49,7 +49,15 @@ Webscrape yahoo statistics tab
 
 Install system requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-For Firefox
+
+For Chrome -please check version compatability chrome-driver
+
+.. code:: bash
+
+    sudo apt-get update
+    sudo apt-get install chromium chromium-driver
+
+For Firefox(Not working after yet)
 
 .. code:: bash
 
@@ -59,12 +67,6 @@ For Firefox
     tar -xvzf geckodriver-v0.26.0-linux64.tar.gz   
     sudo cp geckodriver /usr/local/bin/
 
-For Chrome
-
-.. code:: bash
-
-    sudo apt-get update
-    sudo apt-get install chromium chromium-driver
 
 Install python requirements on venv
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,6 +81,10 @@ Install python requirements on venv
 
 Quick start
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: https://colab.research.google.com/assets/colab-badge.svg?style=flat
+    :target: https://colab.research.google.com/drive/1ISvV7DdK_W_ySwRxSKfDyna6ZsMzQnAb?usp=sharing
+    :alt: Python version
 
 .. code:: Python
 
