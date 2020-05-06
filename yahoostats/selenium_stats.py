@@ -1,13 +1,13 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as chrome_options
 from selenium.webdriver.firefox.options import Options as firefox_options
-from yahoostats.logger import logger
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
 import configparser
 from pprint import pprint as pp
-
+import logging
+logger = logging.getLogger(__name__)
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -42,8 +42,8 @@ class Webscraper:
 
     def accept_yf_cockies(self):
         """Yahoo Finance requires to accept cockies on the fist run."""
+        self.__driver.get(self._yf_url)
         try:
-            self.__driver.get(self._yf_url)
             cockie_window = self.__driver.find_element_by_tag_name('body')
             cockie_window.find_element_by_name('agree').click()
             logger.debug('Yahoo Cockies accepted.')
@@ -53,19 +53,21 @@ class Webscraper:
     def stop(self):
         try:
             self.__driver.close()
-            logger.debug('Webscraper has finished.Quit.')
+            logger.info('Webscraper has finished.Quit.')
         except Exception as exe:
             logger.warning(f'Unable to stop the Webscraper.{exe}')
 
     def get_yahoo_statistics(self, ticker):
         stock_data = {}
-        logger.debug(f'----------Yahoo PEG ratio-----')
-        logger.debug(f'Yahoo webscraping for  {ticker}')
+        logger.info(f'----------Yahoo PEG ratio-----')
+        logger.info(f'Yahoo webscraping for  {ticker}')
         stock_url = f"{self._yf_url}/{ticker}/key-statistics?p={ticker}"
+        logger.info(f'Yahoo url  {stock_url}')
         self.__driver.get(stock_url)
         soup = BeautifulSoup(self.__driver.page_source, "html.parser")
-        if "Symbols similar to" in soup.get_text():
+        if "Symbols Lookup From Yahoo Finance" in self.__driver.title:
             logger.warning(f'The {ticker} was not found in Yahoo Finance.')
+            print(f'The {ticker} was not found in Yahoo Finance.')
             stock_data.update({"PEG Ratio": '---'})
         else:
             data = soup.find(id="Main")

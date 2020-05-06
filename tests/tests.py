@@ -19,14 +19,14 @@ class TestMethods(unittest.TestCase):
 
     def test_yahoo_ticker_stats(self):
         """
-        Test of getting data for list of stocks in df.
+        Test of getting yahoo data for GOOGL.
         """
         stock_list = 'GOOGL'
         self.assertTrue(ys_run(stock_list) is not None)
 
     def test_tipranks_stats(self):
         """
-        Test of getting data for list of stocks in df.
+        Test of getting tipranks data for GOOGL.
         """
         stock_list = 'GOOGL'
         self.assertTrue(tr_run(stock_list) is not None)

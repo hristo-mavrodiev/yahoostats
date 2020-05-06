@@ -7,10 +7,11 @@ from yahoostats.selenium_stats import BROWSER_OPT
 from yahoostats.logger import logger
 import time
 import pandas as pd
-
-config = configparser.ConfigParser()
-config.read('config.ini')
-print(config.sections())
+import logging
+logger = logging.getLogger(__name__)
+logging.getLogger('requests').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+logging.getLogger('selenium').setLevel(logging.WARNING)
 
 ticker = 'GOOGL'
 stock_list = ['GOOGL', 'MU']

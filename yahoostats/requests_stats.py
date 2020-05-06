@@ -3,10 +3,10 @@ from bs4 import BeautifulSoup as soup
 from time import sleep
 import json
 from pprint import pprint as pp
-from yahoostats.logger import logger
-
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import logging
+logger = logging.getLogger(__name__)
 
 
 def get_page_content(url):
