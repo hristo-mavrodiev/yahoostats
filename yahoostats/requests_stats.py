@@ -10,7 +10,6 @@ from pprint import pprint as pp
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-# from requests.packages.urllib3.util.retry import Retry
 
 
 def get_page_content(url):
@@ -27,8 +26,7 @@ def get_page_content(url):
     try:
         res = s.get(url, headers={"User-Agent": "Mozilla/5.0"})
         if res.status_code == requests.codes['ok']:
-            soup1 = soup(res.content, "html.parser")
-            return soup1
+            return res
     except Exception as exe:
         print(f"Unable to load the url {exe}")
         return None
@@ -48,20 +46,16 @@ def reuters_stats(ticker):
     exchanges = ['', '.OQ', '.O', '.N']
     for exchange in exchanges:
         url = f"https://www.reuters.com/companies/{ticker}{exchange}/key-metrics"
-        s = requests.Session()
-        res = s.get(url, headers={"User-Agent": "Mozilla/5.0"})
         used_exchange = ''
-        if res.status_code == requests.codes['ok']:
-            html = soup(res.text, "html.parser")
-            title = html.title.text
-            print(f'Trying with {ticker} on {exchange} -> {title}')
-            if 'Page Not Found' in title:
-                continue
-            elif ticker in title:
-                soup1 = soup(res.content, "html.parser")
-                used_exchange = exchange
-                break
-        soup1 = get_page_content(url)
+        html = soup(get_page_content(url).text, "html.parser")
+        title = html.title.text
+        print(f'Trying with {ticker} on {exchange} -> {title}')
+        if 'Page Not Found' in title:
+            continue
+        elif ticker in title:
+            soup1 = soup(get_page_content(url).content, "html.parser")
+            used_exchange = exchange
+            break
     try:
         df = {}
         df.update({"exchange": used_exchange})
@@ -133,7 +127,7 @@ def morningstar_stats(ticker):
     <span> id ='star_span'
     """
     url = f"https://financials.morningstar.com/ratios/r.html?t={ticker}&culture=en&platform=sal"
-    soup_ms = get_page_content(url)
+    soup_ms = soup(get_page_content(url).content, "html.parser")
     try:
         start_rating = soup_ms.find('span', {'id': "star_span"})
         return {'ms': start_rating["class"][0]}
@@ -153,7 +147,7 @@ def zacks_stats(ticker):
     <p> class = 'rank_view' .text
     """
     url = f'https://www.zacks.com/stock/quote/{ticker}/financial-overview'
-    soup_zack = get_page_content(url)
+    soup_zack = soup(get_page_content(url).content, "html.parser")
     rating_div = soup_zack.find('div', {'class': 'zr_rankbox'})
     rating_label = rating_div.find('p')
     rating_value = rating_label.text
@@ -167,7 +161,7 @@ def yahoo_api_financials(ticker):
     """
     url = f'https://query1.finance.yahoo.com/v10/finance/quoteSummary/{ticker}?modules=' \
         + 'financialData%2CdefaultKeyStatistics'
-    resp = requests.get(url)
+    resp = get_page_content(url)
     data = resp.json()
     fin_data = data['quoteSummary']['result'][0]['financialData']
     current_price = fin_data['currentPrice'].get('raw')

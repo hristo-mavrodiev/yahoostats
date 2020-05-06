@@ -1,5 +1,6 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.options import Options as chrome_options
+from selenium.webdriver.firefox.options import Options as firefox_options
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
@@ -10,8 +11,12 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 print(config.sections())
 
+BROWSER = 'Chrome'
+if BROWSER == 'Chrome':
+    browser_options = chrome_options()
+else:
+    browser_options = firefox_options()
 
-browser_options = Options()
 browser_options.add_argument("--headless")
 browser_options.add_argument('--no-sandbox')
 BROWSER_OPT = browser_options
@@ -21,13 +26,14 @@ YAHOO_URL = f'https://finance.yahoo.com/quote'
 class Webscraper:
     def __init__(self, url, browser_options):
         self._url = url
-
         self.browser_options = browser_options
         self.__driver = None
 
     def start(self):
-        self.__driver = webdriver.Chrome(options=self.browser_options)
-        self.__driver.get(self._url)
+        if BROWSER == 'Chrome':
+            self.__driver = webdriver.Chrome(options=self.browser_options)
+        else:
+            self.__driver = webdriver.Firefox(options=self.browser_options)
         time.sleep(1)
         print('Webdriver Started')
 
@@ -36,6 +42,7 @@ class Webscraper:
         # for cookie in cookies:
         #     driver.add_cookie(cookie)
         try:
+            self.__driver.get(self._url)
             cockie_window = self.__driver.find_element_by_tag_name('body')
             cockie_window.find_element_by_name('agree').click()
             print('Cockies accepted.')
@@ -175,10 +182,10 @@ class Webscraper:
 
     def test_run(self):
         try:
-            browser = webdriver.Chrome(options=self.browser_options)
-            browser.get(self._url)
-            print('Successful test run')
-            browser.close()
+            self.start()
+            self.__driver.get('https://finance.yahoo.com/quote')
+            self.stop()
+            print('working')
             return True
         except Exception as exe:
             print("Something gone wrong...")

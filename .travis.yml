@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 language: python
 python:
   - 3.6
@@ -6,6 +6,7 @@ python:
   - 3.8
 
 addons:
+  firefox: "62.0.2"
   chrome: stable
   apt:
     packages:
@@ -14,9 +15,9 @@ addons:
 before_install:
   # - sudo apt-get update
   # - sudo apt-get -y install firefox wget
-  # - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
-  # - tar -xvzf geckodriver-v0.26.0-linux64.tar.gz
-  # - sudo cp geckodriver /usr/local/bin/
+  - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
+  - tar -xvzf geckodriver-v0.26.0-linux64.tar.gz
+  - sudo cp geckodriver /usr/local/bin/
   # - sudo apt-get -y install chromium-driver
   - python --version
   - pip install -U pip

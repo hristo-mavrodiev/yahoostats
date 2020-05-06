@@ -10,19 +10,6 @@ class TestMethods(unittest.TestCase):
         print("Sample test to test the testings :)")
         self.assertEqual(":)", ":)")
 
-    def test_selenium(self):
-        """
-        Test Selenium webdriver is running
-        """
-        browser = webdriver.Chrome(options=BROWSER_OPT)
-        browser.get('http://google.com/')
-        title = browser.title
-        page_source = browser.page_source
-        browser.close()
-        self.assertTrue(page_source is not None)
-        self.assertEqual(title, 'Google')
-        print('Selenium is working.')
-
     def test_webscrapertestrun(self):
         """
         Test Webscraper class-testrun()
