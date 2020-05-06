@@ -3,14 +3,14 @@ from yahoostats.requests_stats import yahoo_api_financials, morningstar_stats
 from yahoostats.requests_stats import zacks_stats, filter_reuters, reuters_stats
 import configparser
 from pprint import pprint as pp
-from yahoostats.selenium_stats import BROWSER_OPT, YAHOO_URL
+from yahoostats.selenium_stats import BROWSER_OPT
+from yahoostats.logger import logger
 import time
 import pandas as pd
 
 config = configparser.ConfigParser()
 config.read('config.ini')
 print(config.sections())
-
 
 ticker = 'GOOGL'
 stock_list = ['GOOGL', 'MU']
@@ -20,20 +20,25 @@ def combine_stats(stock_list):
     """
     Merge the data from requests and selenium into pandas df.
     """
+    logger.info(f'Getting data for {stock_list}')
     stock_data = {}
-    tr = Webscraper(YAHOO_URL, BROWSER_OPT)
+    tr = Webscraper(BROWSER_OPT)
     tr.start()
+    tr.accept_yf_cockies()
     for stock in stock_list:
+        logger.info(f'Evaluator for {stock}')
         stock_data.update({stock: {}})
         yf_rate = yahoo_api_financials(stock)
         ms_rate = morningstar_stats(stock)
         zs_rate = zacks_stats(stock)
         re_rate = filter_reuters(reuters_stats(stock))
 
+        yf_pegr = tr.get_yahoo_statistics(stock)
         tr_analys = tr.tipranks_analysis((stock))
         tr_rate = tr.tipranks_price((stock))
         stock_data[stock].update(tr_analys)
         stock_data[stock].update(tr_rate)
+        stock_data[stock].update(yf_pegr)
 
         stock_data[stock].update(yf_rate)
         stock_data[stock].update(ms_rate)
@@ -41,9 +46,9 @@ def combine_stats(stock_list):
         stock_data[stock].update(re_rate)
         time.sleep(0.5)
     tr.stop()
-
+    logger.info(f'Merging data for {stock_list}')
     pd_df = pd.DataFrame(stock_data)
-    return pd_df.T
+    return pd_df
 
 
 if __name__ == "__main__":

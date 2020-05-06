@@ -76,6 +76,7 @@ For Firefox - https://firefox-source-docs.mozilla.org/testing/geckodriver/Suppor
     wget https://github.com/mozilla/geckodriver/releases/download/v$GECKO_VERSION/geckodriver-v$GECKO_VERSION-linux64.tar.gz  
     tar -xvzf geckodriver-v$GECKO_VERSION-linux64.tar.gz   
     sudo cp geckodriver /usr/local/bin/
+    sudo chmod a+x /usr/local/bin/geckodriver
 
 
 Install python requirements on venv

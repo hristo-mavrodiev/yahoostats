@@ -1,13 +1,10 @@
-import pandas as pd
-import numpy as np
 import requests
 from bs4 import BeautifulSoup as soup
 from time import sleep
-import pickle
 import json
 from pprint import pprint as pp
+from yahoostats.logger import logger
 
-import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -23,12 +20,13 @@ def get_page_content(url):
                     status_forcelist=[500, 502, 503, 504])
     s.mount('http://', HTTPAdapter(max_retries=retries))
     s.mount('https://', HTTPAdapter(max_retries=retries))
+    logger.debug(f'Fetching url: {url}')
     try:
         res = s.get(url, headers={"User-Agent": "Mozilla/5.0"})
         if res.status_code == requests.codes['ok']:
             return res
     except Exception as exe:
-        print(f"Unable to load the url {exe}")
+        logger.error(f"Unable to load the url {exe}")
         return None
 
 
@@ -49,7 +47,8 @@ def reuters_stats(ticker):
         used_exchange = ''
         html = soup(get_page_content(url).text, "html.parser")
         title = html.title.text
-        print(f'Trying with {ticker} on {exchange} -> {title}')
+        logger.info('-----Reuters-----')
+        logger.info(f'Trying with {ticker} on {exchange} -> {title}')
         if 'Page Not Found' in title:
             continue
         elif ticker in title:
@@ -57,8 +56,8 @@ def reuters_stats(ticker):
             used_exchange = exchange
             break
     try:
-        df = {}
-        df.update({"exchange": used_exchange})
+        data_dict = {}
+        data_dict.update({"exchange": used_exchange})
         for table in soup1.findAll('div', {'class': "KeyMetrics-table-container-3wVZN"}):
             for row in table.findAll("tr"):
                 keys = row.findAll('th')
@@ -66,12 +65,12 @@ def reuters_stats(ticker):
                 row = []
                 if keys and values and keys[0].text:
                     # print({keys[0].text: values[0].text})
-                    df.update({keys[0].text: values[0].text})
+                    data_dict.update({keys[0].text: values[0].text})
     except Exception as exe:
-        print(exe)
-        print(f'Wetsite {url} changed need to edit the function.')
-        df = pd.DataFrame()
-    return df
+        logger.warning(exe)
+        logger.warning(f'Wetsite {url} changed need to edit the function.')
+        data_dict = {}
+    return data_dict
 
 
 def filter_reuters(data):
@@ -93,6 +92,7 @@ def filter_reuters(data):
     r_rev_employee = None
     r_eps = None
     try:
+        logger.info('-----Reuters data function-----')
         r_beta = data.get('Beta')
         r_eps_gr3 = data.get('EPS Growth Rate (3Y)')
         r_eps_gr5 = data.get('EPS Growth Rate (5Y)')
@@ -109,7 +109,7 @@ def filter_reuters(data):
         r_rev_employee = data.get('Revenue/Employee (TTM)')
         r_eps = data.get('EPS Normalized (Annual)')
     except Exception as exe:
-        print(exe)
+        logger.warning(exe)
     filtered = {k: v for k, v in locals().items()
                 if not k.startswith('data')}
     return filtered
@@ -129,10 +129,12 @@ def morningstar_stats(ticker):
     url = f"https://financials.morningstar.com/ratios/r.html?t={ticker}&culture=en&platform=sal"
     soup_ms = soup(get_page_content(url).content, "html.parser")
     try:
+        logger.info(f'-----Morningstar-----')
+        logger.info(f'Fetching data for {ticker}')
         start_rating = soup_ms.find('span', {'id': "star_span"})
         return {'ms': start_rating["class"][0]}
     except Exception as exe:
-        print(exe)
+        logger.warning(exe)
         return None
 
 
@@ -146,6 +148,8 @@ def zacks_stats(ticker):
     <div> class = 'zr_rankbox'
     <p> class = 'rank_view' .text
     """
+    logger.info('-----Zacks-----')
+    logger.info(f'Fetching data for {ticker}')
     url = f'https://www.zacks.com/stock/quote/{ticker}/financial-overview'
     soup_zack = soup(get_page_content(url).content, "html.parser")
     rating_div = soup_zack.find('div', {'class': 'zr_rankbox'})
@@ -159,6 +163,8 @@ def yahoo_api_financials(ticker):
     Get the data from Yahoo API
 
     """
+    logger.info('-----Yahoo Finance API-----')
+    logger.info(f'Fetching data for {ticker}')
     url = f'https://query1.finance.yahoo.com/v10/finance/quoteSummary/{ticker}?modules=' \
         + 'financialData%2CdefaultKeyStatistics'
     resp = get_page_content(url)

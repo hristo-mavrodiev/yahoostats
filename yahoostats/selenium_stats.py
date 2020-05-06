@@ -1,11 +1,13 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as chrome_options
 from selenium.webdriver.firefox.options import Options as firefox_options
+from yahoostats.logger import logger
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
 import configparser
 from pprint import pprint as pp
+
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -14,6 +16,7 @@ print(config.sections())
 BROWSER = 'Chrome'
 if BROWSER == 'Chrome':
     browser_options = chrome_options()
+    logger.info(f'Using {BROWSER}')
 else:
     browser_options = firefox_options()
 
@@ -24,8 +27,8 @@ YAHOO_URL = f'https://finance.yahoo.com/quote'
 
 
 class Webscraper:
-    def __init__(self, url, browser_options):
-        self._url = url
+    def __init__(self, browser_options):
+        self._yf_url = YAHOO_URL
         self.browser_options = browser_options
         self.__driver = None
 
@@ -35,51 +38,45 @@ class Webscraper:
         else:
             self.__driver = webdriver.Firefox(options=self.browser_options)
         time.sleep(1)
-        print('Webdriver Started')
+        logger.debug('Webdriver Started')
 
-    def accept_cockies(self):
-        # cookies = pickle.load(open("cookies.pkl", "rb"))
-        # for cookie in cookies:
-        #     driver.add_cookie(cookie)
+    def accept_yf_cockies(self):
+        """Yahoo Finance requires to accept cockies on the fist run."""
         try:
-            self.__driver.get(self._url)
+            self.__driver.get(self._yf_url)
             cockie_window = self.__driver.find_element_by_tag_name('body')
             cockie_window.find_element_by_name('agree').click()
-            print('Cockies accepted.')
-            # pp(self.__driver.get_cookies())
+            logger.debug('Yahoo Cockies accepted.')
         except Exception as exe:
-            print('Unable to accept cockies.')
-            print(exe)
+            logger.warning(f'Unable to accept cockies.{exe}')
 
     def stop(self):
         try:
             self.__driver.close()
-            print('Webscraper has finished.Quit.')
+            logger.debug('Webscraper has finished.Quit.')
         except Exception as exe:
-            print('Unable to stop the Webscraper.')
-            print(exe)
+            logger.warning(f'Unable to stop the Webscraper.{exe}')
 
-    def get_yahoo_statistics(self, stock_list):
+    def get_yahoo_statistics(self, ticker):
         stock_data = {}
-        for stock in stock_list:
-            print(f'Start webscraping {stock}')
-            stock_url = f"{self._url}/{stock}/key-statistics?p={stock}"
-            self.__driver.get(stock_url)
-            soup = BeautifulSoup(self.__driver.page_source, "html.parser")
-            stock_data.update({stock: {}})
-            if "Symbols similar to" in soup.get_text():
-                print(f'The stock - {stock} was not found in Yahoo Finance.')
-                continue
-            else:
-                data = soup.find(id="Main")
-                tables = data.find_all('table')
-                for table in tables:
-                    rows = table.find_all('tr')
-                    # row_list = list()
-                    for tr in rows:
-                        td = tr.find_all('td')
-                        if len(td) > 1:
-                            stock_data[stock].update({td[0].text: td[1].text})
+        logger.debug(f'----------Yahoo PEG ratio-----')
+        logger.debug(f'Yahoo webscraping for  {ticker}')
+        stock_url = f"{self._yf_url}/{ticker}/key-statistics?p={ticker}"
+        self.__driver.get(stock_url)
+        soup = BeautifulSoup(self.__driver.page_source, "html.parser")
+        if "Symbols similar to" in soup.get_text():
+            logger.warning(f'The {ticker} was not found in Yahoo Finance.')
+            stock_data.update({"PEG Ratio": '---'})
+        else:
+            data = soup.find(id="Main")
+            tables = data.find_all('table')
+            for table in tables:
+                rows = table.find_all('tr')
+                # row_list = list()
+                for tr in rows:
+                    td = tr.find_all('td')
+                    if len(td) > 1 and td[0].text == 'PEG Ratio (5 yr expected) 1':
+                        stock_data.update({td[0].text: td[1].text})
 
         return stock_data
 
@@ -88,6 +85,9 @@ class Webscraper:
         https://www.tipranks.com/stocks/amd/stock-analysis
         """
         url_tr = f'https://www.tipranks.com/stocks/{ticker}/stock-analysis'
+        logger.info(f'-----Tipranks-----')
+        logger.info(f'Fetching data for {ticker}')
+        logger.debug(f'Using selenium on {url_tr}')
         self.__driver.get(url_tr)
         time.sleep(1)
         soup = BeautifulSoup(self.__driver.page_source, "html.parser")
@@ -108,7 +108,7 @@ class Webscraper:
                 v = box.find_all('div')[0].find_all('div')[0].text
                 data.update({k: v})
         except Exception as exe:
-            print(exe)
+            logger.warning(exe)
 
         return data
 
@@ -124,6 +124,9 @@ class Webscraper:
         """
 
         url_tr = f'https://www.tipranks.com/stocks/{ticker}/price-target'
+        logger.info(f'-----tipranks_price-----')
+        logger.info(f'Fetching data for {ticker}')
+        logger.debug(f'Using selenium on {url_tr}')
         target_pr, target_change = None, None
         self.__driver.get(url_tr)
         time.sleep(2)
@@ -138,7 +141,7 @@ class Webscraper:
                 'div', {"class": "client-components-stock-research-analysts-price-target-style__change"})
             target_change = div_target_prof.find('span').text
         except Exception as exe:
-            print(f"Website changed {exe}")
+            logger.warning(f"Website changed {exe}")
 
         return {"tr_target_pr": target_pr, "tr_change": target_change}
 
@@ -146,64 +149,43 @@ class Webscraper:
         """
         https://simplywall.st/stocks/us/media/nasdaq-goog.l/alphabet
         https://simplywall.st/stocks/us/software/nyse-gtt/gtt-communications
+        NOT IMPLEMENTED
         """
-        pass
-
-    def get_yahoo_list_stocks(self, stock_list):
-
-        result = self.get_yahoo_statistics(stock_list)
-        pp(result)
-        row_list = list()
-        for i in stock_list:
-            revenue = result[i].get('Revenue (ttm)')
-            peg = result[i].get('PEG Ratio (5 yr expected) 1')
-            eps = result[i].get('Diluted EPS (ttm)')
-            current_ratio = result[i].get('Current Ratio (mrq)')
-            qeg = result[i].get('Quarterly Earnings Growth (yoy)')
-            price_book = result[i].get('Price/Book (mrq)')
-            oper_cash_flow = result[i].get('Operating Cash Flow (ttm)')
-            net_income = result[i].get('Net Income Avi to Common (ttm)')
-            beta = result[i].get('Beta (5Y Monthly) ')
-            row = [i, revenue, net_income, oper_cash_flow, peg, eps,
-                   current_ratio, qeg, price_book, beta]
-            row_list.append(row)
-        column_list = ['stock', 'revenue', 'net_income', 'oper_cash_flow', 'peg', 'eps',
-                       'current_ratio', 'qeg', 'price_book', 'beta']
-        df_ys = pd.DataFrame(row_list, columns=column_list)
-        return df_ys
+        url_sw = 'https://simplywall.st/stocks/us'
+        return url_sw
 
     def scroll(self, px):
         self.__driver.execute_script(f"window.scrollTo(0, {px})")
-        print(f"Scrolled with {px} px")
+        logger.debug(f"Scrolled with {px} px")
 
     def screenshot(self, path):
         self.__driver.save_screenshot(path)
-        print(f"Screenshot saved as {path} ")
+        logger.info(f"Screenshot saved as {path} ")
 
     def test_run(self):
         try:
+            logger.info('Testrun on Selenium')
             self.start()
             self.__driver.get('https://finance.yahoo.com/quote')
             self.stop()
-            print('working')
+            logger.info('working')
             return True
         except Exception as exe:
-            print("Something gone wrong...")
-            print(exe)
+            logger.warning(f"Something gone wrong...{exe}")
             return False
 
 
-def ys_run(stock_list):
-    yh = Webscraper(YAHOO_URL, BROWSER_OPT)
+def ys_run(ticker):
+    yh = Webscraper(BROWSER_OPT)
     yh.start()
-    yh.accept_cockies()
-    result_df = (yh.get_yahoo_list_stocks(stock_list))
+    yh.accept_yf_cockies()
+    result_df = (yh.get_yahoo_statistics(ticker))
     yh.stop()
     return result_df
 
 
 def tr_run(ticker):
-    tr = Webscraper(YAHOO_URL, BROWSER_OPT)
+    tr = Webscraper(BROWSER_OPT)
     tr.start()
     result_df = tr.tipranks_analysis((ticker))
     result_df.update(tr.tipranks_price((ticker)))
@@ -213,5 +195,5 @@ def tr_run(ticker):
 
 if __name__ == "__main__":
     stock_list = ['GOOGL', 'GTT', 'VMW', 'AMD', 'NVDA', 'TSLA', 'IBM', 'DELL']
-    # ys_run(stock_list)
-    pp(tr_run('GOOGL'))
+    pp(ys_run(stock_list[0]))
+    # pp(tr_run('GOOGL'))

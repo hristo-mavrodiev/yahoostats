@@ -4,6 +4,7 @@ include LICENSE.txt
 include README.rst
 include *.md
 include *.rst
+include *.ini
 
 graft tests
 graft examples
