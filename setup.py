@@ -21,7 +21,7 @@ setup(
     description="Yahoo statistics webscraper",
     long_description=long_description,
     long_description_content_type="text/x-rst",
-    url="hhttps://github.com/hristo-mavrodiev/yahoostats",
+    url="https://github.com/hristo-mavrodiev/yahoostats",
     packages=find_packages(),
     classifiers=[
         'Development Status :: 3 - Alpha',
