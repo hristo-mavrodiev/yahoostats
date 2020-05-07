@@ -9,9 +9,9 @@ from pprint import pprint as pp
 import logging
 logger = logging.getLogger(__name__)
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-print(config.sections())
+# config = configparser.ConfigParser()
+# config.read('config.ini')
+# print(config.sections())
 
 
 class Webscraper:

@@ -30,7 +30,7 @@ yahoostats
     :alt: PyPi status
 
 .. image:: https://img.shields.io/pypi/dm/yahoostats.svg?maxAge=2592000&label=installs&color=%2327B1FF
-    :target: https://pypi.python.org/pypi/yahoostats/0.0.01/
+    :target: https://pypi.python.org/pypi/yahoostats/
     :alt: PyPi downloads
 
 .. image:: https://img.shields.io/github/stars/hristo-mavrodiev/yahoostats.svg?style=plastic&label=Star&maxAge=60

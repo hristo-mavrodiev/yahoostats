@@ -15,7 +15,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name="yahoostats",
-    version="0.0.01",
+    version="0.0.3",
     author="Hristo Mavrodiev",
     author_email="h.mavrodiev@abv.bg",
     description="Yahoo statistics webscraper",
