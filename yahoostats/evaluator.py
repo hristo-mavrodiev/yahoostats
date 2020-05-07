@@ -3,7 +3,6 @@ from yahoostats.requests_stats import yahoo_api_financials, morningstar_stats
 from yahoostats.requests_stats import zacks_stats, filter_reuters, reuters_stats
 import configparser
 from pprint import pprint as pp
-from yahoostats.selenium_stats import BROWSER_OPT
 from yahoostats.logger import logger
 import time
 import pandas as pd
@@ -17,13 +16,13 @@ ticker = 'GOOGL'
 stock_list = ['GOOGL', 'MU']
 
 
-def combine_stats(stock_list):
+def combine_stats(stock_list, browser="Chrome"):
     """
     Merge the data from requests and selenium into pandas df.
     """
     logger.info(f'Getting data for {stock_list}')
     stock_data = {}
-    tr = Webscraper(BROWSER_OPT)
+    tr = Webscraper(browser)
     tr.start()
     tr.accept_yf_cockies()
     for stock in stock_list:

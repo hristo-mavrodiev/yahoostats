@@ -13,30 +13,27 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 print(config.sections())
 
-BROWSER = 'Chrome'
-if BROWSER == 'Chrome':
-    browser_options = chrome_options()
-    logger.info(f'Using {BROWSER}')
-else:
-    browser_options = firefox_options()
-
-browser_options.add_argument("--headless")
-browser_options.add_argument('--no-sandbox')
-BROWSER_OPT = browser_options
-YAHOO_URL = f'https://finance.yahoo.com/quote'
-
 
 class Webscraper:
-    def __init__(self, browser_options):
-        self._yf_url = YAHOO_URL
-        self.browser_options = browser_options
+    def __init__(self, browser="Chrome"):
+        self._yf_url = f'https://finance.yahoo.com/quote'
+        self.browser = browser
         self.__driver = None
 
     def start(self):
-        if BROWSER == 'Chrome':
-            self.__driver = webdriver.Chrome(options=self.browser_options)
+        if self.browser == 'Chrome':
+            browser_options = chrome_options()
+            browser_options.add_argument("--headless")
+            browser_options.add_argument('--no-sandbox')
+            self.__driver = webdriver.Chrome(options=browser_options)
+        elif self.browser == 'Firefox':
+            browser_options = firefox_options()
+            browser_options.add_argument("--headless")
+            browser_options.add_argument('--no-sandbox')
+            self.__driver = webdriver.Firefox(options=browser_options)
         else:
-            self.__driver = webdriver.Firefox(options=self.browser_options)
+            raise Exception('Please set browser to browser=Firefox or Chrome.')
+        logger.info(f'Using {self.browser}')
         time.sleep(1)
         logger.debug('Webdriver Started')
 
@@ -179,8 +176,8 @@ class Webscraper:
             return False
 
 
-def ys_run(ticker):
-    yh = Webscraper(BROWSER_OPT)
+def ys_run(ticker, browser="Chrome"):
+    yh = Webscraper(browser)
     yh.start()
     yh.accept_yf_cockies()
     result_df = (yh.get_yahoo_statistics(ticker))
@@ -188,8 +185,8 @@ def ys_run(ticker):
     return result_df
 
 
-def tr_run(ticker):
-    tr = Webscraper(BROWSER_OPT)
+def tr_run(ticker, browser="Chrome"):
+    tr = Webscraper(browser)
     tr.start()
     result_df = tr.tipranks_analysis((ticker))
     result_df.update(tr.tipranks_price((ticker)))

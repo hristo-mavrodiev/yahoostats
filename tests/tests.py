@@ -1,7 +1,6 @@
 import unittest
 from selenium import webdriver
 from yahoostats.selenium_stats import Webscraper, ys_run, tr_run
-from yahoostats.selenium_stats import BROWSER_OPT
 from yahoostats.evaluator import combine_stats
 
 
@@ -12,9 +11,16 @@ class TestMethods(unittest.TestCase):
 
     def test_webscrapertestrun(self):
         """
-        Test Webscraper class-testrun()
+        Test Webscraper class-testrun() with Chrome
         """
-        ys = Webscraper(BROWSER_OPT)
+        ys = Webscraper(browser="Chrome")
+        self.assertTrue(ys.test_run())
+
+    def test_webscrapertestrun_firefox(self):
+        """
+        Test Webscraper class-testrun() with Firefox
+        """
+        ys = Webscraper(browser="Firefox")
         self.assertTrue(ys.test_run())
 
     def test_yahoo_ticker_stats(self):
