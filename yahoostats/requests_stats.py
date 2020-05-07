@@ -56,16 +56,16 @@ def reuters_stats(ticker):
                 soup1 = soup(get_page_content(url).content, "html.parser")
                 used_exchange = exchange
                 break
-            data_dict = {}
-            data_dict.update({"exchange": used_exchange})
-            for table in soup1.findAll('div', {'class': "KeyMetrics-table-container-3wVZN"}):
-                for row in table.findAll("tr"):
-                    keys = row.findAll('th')
-                    values = row.findAll("td")
-                    row = []
-                    if keys and values and keys[0].text:
-                        # print({keys[0].text: values[0].text})
-                        data_dict.update({keys[0].text: values[0].text})
+        data_dict = {}
+        data_dict.update({"exchange": used_exchange})
+        for table in soup1.findAll('div', {'class': "KeyMetrics-table-container-3wVZN"}):
+            for row in table.findAll("tr"):
+                keys = row.findAll('th')
+                values = row.findAll("td")
+                row = []
+                if keys and values and keys[0].text:
+                    # print({keys[0].text: values[0].text})
+                    data_dict.update({keys[0].text: values[0].text})
     except Exception as exe:
         logger.warning(exe)
         logger.warning(f'Wetsite {url} changed need to edit the function.')
