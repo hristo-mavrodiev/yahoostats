@@ -13,15 +13,15 @@ def get_page_content(url):
     """
     Function to get Beautifulsoup from provided url with requests.
     """
-    sleep(1)
     s = requests.Session()
-    retries = Retry(total=10,
+    retries = Retry(total=5,
                     backoff_factor=0.3,
                     status_forcelist=[500, 502, 503, 504])
     s.mount('http://', HTTPAdapter(max_retries=retries))
     s.mount('https://', HTTPAdapter(max_retries=retries))
     logger.debug(f'Fetching url: {url}')
     try:
+        sleep(0.01)
         res = s.get(url, headers={"User-Agent": "Mozilla/5.0"})
         if res.status_code == requests.codes['ok']:
             return res
@@ -42,30 +42,30 @@ def reuters_stats(ticker):
     ""or without specified exchange - NEWYORK CONSOLIDATED
     """
     exchanges = ['', '.OQ', '.O', '.N']
-    for exchange in exchanges:
-        url = f"https://www.reuters.com/companies/{ticker}{exchange}/key-metrics"
-        used_exchange = ''
-        html = soup(get_page_content(url).text, "html.parser")
-        title = html.title.text
-        logger.info('-----Reuters-----')
-        logger.info(f'Trying with {ticker} on {exchange} -> {title}')
-        if 'Page Not Found' in title:
-            continue
-        elif ticker in title:
-            soup1 = soup(get_page_content(url).content, "html.parser")
-            used_exchange = exchange
-            break
     try:
-        data_dict = {}
-        data_dict.update({"exchange": used_exchange})
-        for table in soup1.findAll('div', {'class': "KeyMetrics-table-container-3wVZN"}):
-            for row in table.findAll("tr"):
-                keys = row.findAll('th')
-                values = row.findAll("td")
-                row = []
-                if keys and values and keys[0].text:
-                    # print({keys[0].text: values[0].text})
-                    data_dict.update({keys[0].text: values[0].text})
+        for exchange in exchanges:
+            url = f"https://www.reuters.com/companies/{ticker}{exchange}/key-metrics"
+            used_exchange = ''
+            html = soup(get_page_content(url).text, "html.parser")
+            title = html.title.text
+            logger.info('-----Reuters-----')
+            logger.info(f'Trying with {ticker} on {exchange} -> {title}')
+            if 'Page Not Found' in title:
+                continue
+            elif ticker in title:
+                soup1 = soup(get_page_content(url).content, "html.parser")
+                used_exchange = exchange
+                break
+            data_dict = {}
+            data_dict.update({"exchange": used_exchange})
+            for table in soup1.findAll('div', {'class': "KeyMetrics-table-container-3wVZN"}):
+                for row in table.findAll("tr"):
+                    keys = row.findAll('th')
+                    values = row.findAll("td")
+                    row = []
+                    if keys and values and keys[0].text:
+                        # print({keys[0].text: values[0].text})
+                        data_dict.update({keys[0].text: values[0].text})
     except Exception as exe:
         logger.warning(exe)
         logger.warning(f'Wetsite {url} changed need to edit the function.')
@@ -127,15 +127,15 @@ def morningstar_stats(ticker):
     <span> id ='star_span'
     """
     url = f"https://financials.morningstar.com/ratios/r.html?t={ticker}&culture=en&platform=sal"
-    soup_ms = soup(get_page_content(url).content, "html.parser")
     try:
+        soup_ms = soup(get_page_content(url).content, "html.parser")
         logger.info(f'-----Morningstar-----')
         logger.info(f'Fetching data for {ticker}')
         start_rating = soup_ms.find('span', {'id': "star_span"})
         return {'ms': start_rating["class"][0]}
     except Exception as exe:
         logger.warning(exe)
-        return None
+        return {'ms': "---"}
 
 
 def zacks_stats(ticker):
@@ -147,14 +147,21 @@ def zacks_stats(ticker):
 
     <div> class = 'zr_rankbox'
     <p> class = 'rank_view' .text
+    added sleep for error code#104 on colab
+    https://stackoverflow.com/questions/52051989/requests-exceptions-connectionerror-connection-aborted-connectionreseterro
     """
     logger.info('-----Zacks-----')
     logger.info(f'Fetching data for {ticker}')
     url = f'https://www.zacks.com/stock/quote/{ticker}/financial-overview'
-    soup_zack = soup(get_page_content(url).content, "html.parser")
-    rating_div = soup_zack.find('div', {'class': 'zr_rankbox'})
-    rating_label = rating_div.find('p')
-    rating_value = rating_label.text
+    try:
+        sleep(0.01)
+        soup_zack = soup(get_page_content(url).content, "html.parser")
+        rating_div = soup_zack.find('div', {'class': 'zr_rankbox'})
+        rating_label = rating_div.find('p')
+        rating_value = rating_label.text
+    except Exception as exe:
+        logger.warning(f'Unable to get data from zacks {exe}')
+        rating_value = "---"
     return {'zacks': rating_value.split()[0]}
 
 
@@ -167,22 +174,26 @@ def yahoo_api_financials(ticker):
     logger.info(f'Fetching data for {ticker}')
     url = f'https://query1.finance.yahoo.com/v10/finance/quoteSummary/{ticker}?modules=' \
         + 'financialData%2CdefaultKeyStatistics'
-    resp = get_page_content(url)
-    data = resp.json()
-    fin_data = data['quoteSummary']['result'][0]['financialData']
-    current_price = fin_data['currentPrice'].get('raw')
-    target_price = fin_data['targetMeanPrice'].get('raw')
-    yahoo_rating_val = fin_data['recommendationMean'].get('raw')
-    yahoo_rating_str = fin_data['recommendationKey']
-    yahoo_valuation = float(target_price) / float(current_price)
-    yahoo_current_ratio = fin_data['currentRatio'].get('raw')
-    y_return_assets = fin_data['returnOnAssets'].get('raw')
-    y_return_equity = fin_data['returnOnEquity'].get('raw')
-    bs_data = data['quoteSummary']['result'][0].get('defaultKeyStatistics')
     try:
+        resp = get_page_content(url)
+        data = resp.json()
+        fin_data = data['quoteSummary']['result'][0]['financialData']
+        current_price = fin_data['currentPrice'].get('raw')
+        target_price = fin_data['targetMeanPrice'].get('raw')
+        yahoo_rating_val = fin_data['recommendationMean'].get('raw')
+        yahoo_rating_str = fin_data['recommendationKey']
+        yahoo_valuation = float(target_price) / float(current_price)
+        yahoo_current_ratio = fin_data['currentRatio'].get('raw')
+        y_return_assets = fin_data['returnOnAssets'].get('raw')
+        y_return_equity = fin_data['returnOnEquity'].get('raw')
+        bs_data = data['quoteSummary']['result'][0].get('defaultKeyStatistics')
         beta = bs_data.get('beta').get('raw')
     except Exception:
         beta = None
+        y_return_equity, yahoo_current_ratio = None, None
+        y_return_assets, yahoo_valuation = None, None
+        yahoo_rating_str, yahoo_rating_val = None, None
+        target_price, current_price = None, None
     result = {'yf_pr_now': current_price,
               'yf_pr_trg': target_price,
               'yf_rv': yahoo_rating_val,

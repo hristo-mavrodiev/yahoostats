@@ -63,22 +63,25 @@ class Webscraper:
         logger.info(f'Yahoo webscraping for  {ticker}')
         stock_url = f"{self._yf_url}/{ticker}/key-statistics?p={ticker}"
         logger.info(f'Yahoo url  {stock_url}')
-        self.__driver.get(stock_url)
-        soup = BeautifulSoup(self.__driver.page_source, "html.parser")
-        if "Symbols Lookup From Yahoo Finance" in self.__driver.title:
-            logger.warning(f'The {ticker} was not found in Yahoo Finance.')
-            print(f'The {ticker} was not found in Yahoo Finance.')
-            stock_data.update({"PEG Ratio": '---'})
-        else:
-            data = soup.find(id="Main")
-            tables = data.find_all('table')
-            for table in tables:
-                rows = table.find_all('tr')
-                # row_list = list()
-                for tr in rows:
-                    td = tr.find_all('td')
-                    if len(td) > 1 and td[0].text == 'PEG Ratio (5 yr expected) 1':
-                        stock_data.update({td[0].text: td[1].text})
+        try:
+            self.__driver.get(stock_url)
+            soup = BeautifulSoup(self.__driver.page_source, "html.parser")
+            if "Symbols Lookup From Yahoo Finance" in self.__driver.title:
+                logger.warning(f'The {ticker} was not found in Yahoo Finance.')
+                print(f'The {ticker} was not found in Yahoo Finance.')
+                stock_data.update({"PEG Ratio": '---'})
+            else:
+                data = soup.find(id="Main")
+                tables = data.find_all('table')
+                for table in tables:
+                    rows = table.find_all('tr')
+                    # row_list = list()
+                    for tr in rows:
+                        td = tr.find_all('td')
+                        if len(td) > 1 and td[0].text == 'PEG Ratio (5 yr expected) 1':
+                            stock_data.update({td[0].text: td[1].text})
+        except Exception as exe:
+            logger.warning(f'Unable to get data from Yahoo  {exe}')
 
         return stock_data
 
@@ -90,12 +93,11 @@ class Webscraper:
         logger.info(f'-----Tipranks-----')
         logger.info(f'Fetching data for {ticker}')
         logger.debug(f'Using selenium on {url_tr}')
-        self.__driver.get(url_tr)
-        time.sleep(1)
-        soup = BeautifulSoup(self.__driver.page_source, "html.parser")
         data = {}
-
         try:
+            self.__driver.get(url_tr)
+            time.sleep(1)
+            soup = BeautifulSoup(self.__driver.page_source, "html.parser")
             div_tr_score = soup.find('div', {
                 'class': "client-components-ValueChange-shape__Octagon"})
             text_tr_score = div_tr_score.find('tspan').text + "/10"
@@ -130,11 +132,11 @@ class Webscraper:
         logger.info(f'Fetching data for {ticker}')
         logger.debug(f'Using selenium on {url_tr}')
         target_pr, target_change = None, None
-        self.__driver.get(url_tr)
-        time.sleep(2)
-        soup = BeautifulSoup(self.__driver.page_source, "html.parser")
 
         try:
+            self.__driver.get(url_tr)
+            time.sleep(2)
+            soup = BeautifulSoup(self.__driver.page_source, "html.parser")
             div_target_pr = soup.find('div', {
                 'class': "client-components-stock-research-analysts-price-target-style__actualMoney"})
             target_pr = div_target_pr.find('span')['title']
