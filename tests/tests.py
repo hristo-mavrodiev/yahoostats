@@ -27,21 +27,21 @@ class TestMethods(unittest.TestCase):
         """
         Test of getting yahoo data for GOOGL.
         """
-        stock_list = 'GOOGL'
-        self.assertTrue(ys_run(stock_list) is not None)
+        stock = 'GOOGL'
+        self.assertTrue(ys_run(stock) is not None)
 
     def test_tipranks_stats(self):
         """
         Test of getting tipranks data for GOOGL.
         """
-        stock_list = 'GOOGL'
-        self.assertTrue(tr_run(stock_list) is not None)
+        stock = 'GOOGL'
+        self.assertTrue(tr_run(stock) is not None)
 
     def test_evaluator(self):
         """
         Test of merging requests with selenium data
         """
-        stock_list = ['GOOGL', 'MU']
+        stock_list = ['GOOGL', 'MU', 'NOSETETS']
         self.assertTrue(combine_stats(stock_list) is not None)
 
 

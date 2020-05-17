@@ -9,18 +9,18 @@ from setuptools import setup, find_packages
 from os import path
 
 here = path.abspath(path.dirname(__file__))
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
 setup(
     name="yahoostats",
-    version="0.0.3",
+    version="0.0.4",
     author="Hristo Mavrodiev",
     author_email="h.mavrodiev@abv.bg",
     description="Yahoo statistics webscraper",
     long_description=long_description,
-    long_description_content_type="text/x-rst",
+    long_description_content_type="text/markdown",
     url="https://github.com/hristo-mavrodiev/yahoostats",
     packages=find_packages(),
     classifiers=[

@@ -1,0 +1,9 @@
+site_name: Yahoostats documentation
+nav:
+  - Home: index.md
+  - Install: install.md
+  - Example: example.md
+  - Changelog: CHANGELOG.md
+theme: readthedocs
+markdown_extensions:
+  - codehilite

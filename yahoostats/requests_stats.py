@@ -1,3 +1,8 @@
+"""
+Webscraping using requests.get function and BeautifulSoup.
+Without Firefox Chrome or Selenium.
+"""
+
 import requests
 from bs4 import BeautifulSoup as soup
 from time import sleep
@@ -11,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def get_page_content(url):
     """
-    Function to get Beautifulsoup from provided url with requests.
+    Function to use requests.get on provided url with retry and delay between retries.
     """
     s = requests.Session()
     retries = Retry(total=5,
@@ -33,6 +38,14 @@ def get_page_content(url):
 def reuters_stats(ticker):
     """
     Function to get data from Thompson Reuters"
+    Input:
+    ---------------
+    ticker - stock symbol
+
+    Outputs:
+    ---------------
+    Dictionary with fundamental statistics.
+
     https://www.reuters.com/finance/stocks/lookup?searchType=any&comSortBy=marketcap&search="COMPANY"
     https://www.reuters.com/companies/GOOGL.O/key-metrics
     https://www.reuters.com/companies/IBM/key-metrics
@@ -76,6 +89,13 @@ def reuters_stats(ticker):
 def filter_reuters(data):
     """
     Filter the data from reuters.
+    Input:
+    ----------------------
+    Data - webscraped data from reuters_stats function
+
+    Output:
+    ----------------------
+    Dictionary with fundamental statistics
     """
     r_beta = None
     r_eps_gr3 = None
@@ -132,10 +152,10 @@ def morningstar_stats(ticker):
         logger.info(f'-----Morningstar-----')
         logger.info(f'Fetching data for {ticker}')
         start_rating = soup_ms.find('span', {'id': "star_span"})
-        return {'ms': start_rating["class"][0]}
+        return {'ms_stars': start_rating["class"][0]}
     except Exception as exe:
         logger.warning(exe)
-        return {'ms': "---"}
+        return {'ms_stars': "---"}
 
 
 def zacks_stats(ticker):
@@ -162,13 +182,28 @@ def zacks_stats(ticker):
     except Exception as exe:
         logger.warning(f'Unable to get data from zacks {exe}')
         rating_value = "---"
-    return {'zacks': rating_value.split()[0]}
+    return {'zacks_rate': rating_value.split()[0]}
 
 
 def yahoo_api_financials(ticker):
     """
     Get the data from Yahoo API
+    Inputs:
+    --------------------
+    Ticker - stock symbol
 
+    Outputs:
+    ---------------------------
+    Dictionary with:
+    'yf_price_now': current_price,
+    'yf_price_target': target_price,
+    'yf_ratingvalue': yahoo price rating_value,
+    'yf_ratingstring': yahoo price rating_string,
+    'yf_profit': yahoo profit on the price,
+    'yf_current_ratio': current_ratio,
+    'yf_return_assets': return on assets,
+    'yf_return_equity': return on equity,
+    'yf_beta': beta
     """
     logger.info('-----Yahoo Finance API-----')
     logger.info(f'Fetching data for {ticker}')
@@ -194,13 +229,13 @@ def yahoo_api_financials(ticker):
         y_return_assets, yahoo_valuation = None, None
         yahoo_rating_str, yahoo_rating_val = None, None
         target_price, current_price = None, None
-    result = {'yf_pr_now': current_price,
-              'yf_pr_trg': target_price,
-              'yf_rv': yahoo_rating_val,
-              'yf_rs': yahoo_rating_str,
-              'yf_prof': yahoo_valuation,
-              'yf_cur_ratio': yahoo_current_ratio,
-              'yf_ret_assets': y_return_assets,
-              'yf_ret_equity': y_return_equity,
+    result = {'yf_price_now': current_price,
+              'yf_price_target': target_price,
+              'yf_ratingvalue': yahoo_rating_val,
+              'yf_ratingstring': yahoo_rating_str,
+              'yf_profit': yahoo_valuation,
+              'yf_current_ratio': yahoo_current_ratio,
+              'yf_return_assets': y_return_assets,
+              'yf_return_equity': y_return_equity,
               'yf_beta': beta}
     return result

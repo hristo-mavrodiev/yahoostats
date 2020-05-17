@@ -19,6 +19,20 @@ stock_list = ['GOOGL', 'MU']
 def combine_stats(stock_list, browser="Chrome"):
     """
     Merge the data from requests and selenium into pandas df.
+    Inputs:
+    ------------------
+    stocklist - list with stock symbols
+    browser = "Chrome" / "Firefox" for default selenium webscraping browser
+
+    Outputs:
+    ------------------
+    Pandas DataFrame with the webscraped data from:
+    -yahoo finance webscraped with selenium - "PEG Ratio"
+    -yahoo finance API - all rows with yf prefix
+    -tipranks - all rows with prefix tr
+    -reuters - all rows with prefix r
+    -morningstar -the row with "ms" label represents the star rating 0-5
+    -zacks - racks label - represents buy/sell rating
     """
     logger.info(f'Getting data for {stock_list}')
     stock_data = {}
@@ -51,6 +65,6 @@ def combine_stats(stock_list, browser="Chrome"):
     return pd_df
 
 
-if __name__ == "__main__":
-    webscraped_data = combine_stats(stock_list)
-    pp(webscraped_data)
+# if __name__ == "__main__":
+#     webscraped_data = combine_stats(stock_list)
+#     pp(webscraped_data)

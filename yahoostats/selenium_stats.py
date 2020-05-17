@@ -1,20 +1,23 @@
+"""
+Webscaping with Selenium + Firefox or Chrome.
+"""
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as chrome_options
 from selenium.webdriver.firefox.options import Options as firefox_options
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
-import configparser
-from pprint import pprint as pp
 import logging
 logger = logging.getLogger(__name__)
 
-# config = configparser.ConfigParser()
-# config.read('config.ini')
-# print(config.sections())
-
 
 class Webscraper:
+    """
+    Class for webscraping data from Yahoo finance and Tipranks using Selenium.
+    Attributes:
+    browser = "Chrome" or "Firefox"
+    """
     def __init__(self, browser="Chrome"):
         self._yf_url = f'https://finance.yahoo.com/quote'
         self.browser = browser
@@ -65,7 +68,6 @@ class Webscraper:
             soup = BeautifulSoup(self.__driver.page_source, "html.parser")
             if "Symbols Lookup From Yahoo Finance" in self.__driver.title:
                 logger.warning(f'The {ticker} was not found in Yahoo Finance.')
-                print(f'The {ticker} was not found in Yahoo Finance.')
                 stock_data.update({"PEG Ratio": '---'})
             else:
                 data = soup.find(id="Main")
@@ -146,14 +148,14 @@ class Webscraper:
 
         return {"tr_target_pr": target_pr, "tr_change": target_change}
 
-    def simplywall(self, ticker):
-        """
-        https://simplywall.st/stocks/us/media/nasdaq-goog.l/alphabet
-        https://simplywall.st/stocks/us/software/nyse-gtt/gtt-communications
-        NOT IMPLEMENTED
-        """
-        url_sw = 'https://simplywall.st/stocks/us'
-        return url_sw
+    # def simplywall(self, ticker):
+    #     """
+    #     https://simplywall.st/stocks/us/media/nasdaq-goog.l/alphabet
+    #     https://simplywall.st/stocks/us/software/nyse-gtt/gtt-communications
+    #     NOT IMPLEMENTED
+    #     url_sw = 'https://simplywall.st/stocks/us'
+    #     """
+    #     pass
 
     def scroll(self, px):
         self.__driver.execute_script(f"window.scrollTo(0, {px})")
@@ -192,9 +194,3 @@ def tr_run(ticker, browser="Chrome"):
     result_df.update(tr.tipranks_price((ticker)))
     tr.stop()
     return result_df
-
-
-if __name__ == "__main__":
-    stock_list = ['GOOGL', 'GTT', 'VMW', 'AMD', 'NVDA', 'TSLA', 'IBM', 'DELL']
-    pp(ys_run(stock_list[0]))
-    # pp(tr_run('GOOGL'))
