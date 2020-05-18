@@ -20,6 +20,7 @@ jobs:
   pool:
     vmImage: 'ubuntu-latest'
   strategy:
+    maxParallel: 1
     matrix:
         Python36-64bit-full:
           python.version: '3.6'
@@ -57,6 +58,7 @@ jobs:
   pool:
     vmImage: 'windows-latest'
   strategy:
+    maxParallel: 1
     matrix:
         Python36-32bit-full:
           python.version: '3.6'
@@ -110,6 +112,7 @@ jobs:
     vmImage: 'macOS-latest'
 
   strategy:
+    maxParallel: 1
     matrix:
         Python36-64bit-full:
           python.version: '3.6'
