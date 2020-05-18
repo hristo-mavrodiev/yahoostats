@@ -169,7 +169,7 @@ class Webscraper:
         try:
             logger.info('Testrun on Selenium')
             self.start()
-            self.__driver.get('https://finance.yahoo.com/quote')
+            self.__driver.get('https://www.google.com')
             self.stop()
             logger.info('working')
             return True
