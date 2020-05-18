@@ -64,6 +64,18 @@ jobs:
         Python36-64bit-full:
           python.version: '3.6'
           python.arch: 'x64'
+        Python37-32bit-full:
+          python.version: '3.7'
+          python.arch: 'x86'
+        Python37-64bit-full:
+          python.version: '3.7'
+          python.arch: 'x64'
+        Python38-32bit-full:
+          python.version: '3.8'
+          python.arch: 'x86'
+        Python38-64bit-full:
+          python.version: '3.8'
+          python.arch: 'x64'
   steps:
   - task: UsePythonVersion@0
     displayName: 'Use Python $(python.version)'
