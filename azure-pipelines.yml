@@ -79,6 +79,7 @@ jobs:
     displayName: 'Install dependencies'
   - script: |
       pip install nose
+      geckodriver --version
       nosetests tests/tests.py -v --with-xunit --xunit-file=test-results.xml
     displayName: nosetests
   - script: 'python setup.py sdist'
