@@ -1,0 +1,127 @@
+trigger:
+  branches:
+    include:
+    - master
+    - dev
+  tags:
+    include:
+    - '*'
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - '*'
+
+jobs:
+
+# linux
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-latest'
+  strategy:
+    matrix:
+        Python36-64bit-full:
+          python.version: '3.6'
+          python.arch: 'x64'
+
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python $(python.version)'
+    inputs:
+      versionSpec: $(python.version)
+      architecture: $(python.arch)
+      addToPath: true
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
+  - script: |
+      pip install nose
+      nosetests -v --with-xunit --xunit-file=test-results.xml
+    displayName: nosetests
+  - script: 'python setup.py sdist'
+    displayName: 'build sdist'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results **/test-results.xml'
+    inputs:
+      testResultsFiles: '**/test-results.xml'
+      testRunTitle: 'Python $(python.version)'
+
+
+# Windows
+
+- job: Windows
+  pool:
+    vmImage: 'windows-latest'
+  strategy:
+    matrix:
+        Python36-32bit-full:
+          python.version: '3.6'
+          python.arch: 'x86'
+        Python36-64bit-full:
+          python.version: '3.6'
+          python.arch: 'x64'
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python $(python.version)'
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: $(python.arch)
+      addToPath: true
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install wheel
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
+  - script: |
+      pip install nose
+      nosetests tests/tests.py -v --with-xunit --xunit-file=test-results.xml
+    displayName: nosetests
+  - script: 'python setup.py sdist'
+    displayName: 'build sdist'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results **/test-results.xml'
+    inputs:
+      testResultsFiles: '**/test-results.xml'
+
+
+# MacOS
+
+- job: MacOS
+  pool:
+    vmImage: 'macOS-latest'
+
+  strategy:
+    matrix:
+        Python36-64bit-full:
+          python.version: '3.6'
+          python.arch: 'x64'
+
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python $(python.version)'
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: $(python.arch)
+      addToPath: true
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
+  - script: |
+      pip install nose
+      nosetests -v --with-xunit --xunit-file=test-results.xml
+    displayName: nosetests
+  - script: 'python setup.py sdist'
+    displayName: 'build sdist'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results **/test-results.xml'
+    inputs:
+      testResultsFiles: '**/test-results.xml'
