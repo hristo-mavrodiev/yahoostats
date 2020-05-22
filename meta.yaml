@@ -16,7 +16,7 @@ source:
   # If getting the source from GitHub, remove the line above,
   # uncomment the line below, and modify as needed. Use releases if available:
   # url: https://github.com/simplejson/simplejson/releases/download/{{ version }}/simplejson-{{ version }}.tar.gz
-  # and otherwise fall back to archive: 
+  # and otherwise fall back to archive:
   # url: https://github.com/simplejson/simplejson/archive/v{{ version }}.tar.gz
   sha256: 6d00b19feb3825208671ba299396824f421b2b3abb74d9201c8c53c5741cf97e
   # sha256 is the preferred checksum -- you can get it for a file with:
