@@ -9,10 +9,7 @@ addons:
   firefox: "62.0.2"
   chrome: stable
   apt:
-    sources:
-      - google-chrome
     packages:
-      - google-chrome-stable
       - chromium-chromedriver
       - chromium-bsu
 
