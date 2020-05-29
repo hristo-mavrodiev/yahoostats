@@ -26,7 +26,7 @@ before_install:
   - wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
   - unzip chromedriver_linux64.zip
   - chmod +x chromedriver
-  - sudo cp geckodriver /usr/local/bin/
+  - sudo cp chromedriver /usr/local/bin/
   - sudo apt-get -y install chromium-chromedriver
   # Python
   - python --version
