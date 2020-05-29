@@ -21,7 +21,7 @@ before_install:
   - tar -xvzf geckodriver-v0.26.0-linux64.tar.gz
   - sudo cp geckodriver /usr/local/bin/
   - sudo chmod a+x /usr/local/bin/geckodriver
-  - sudo apt-get -y install chromium-driver chromium-browser
+  - sudo apt-get -y install chromium-driver
   - python --version
   - pip install -U pip
 # - pip install -U pytest
