@@ -27,7 +27,7 @@ before_install:
   - unzip chromedriver_linux64.zip
   - chmod +x chromedriver
   - sudo cp chromedriver /usr/local/bin/
-  - sudo apt-get -y install chromium-chromedriver
+#  - sudo apt-get -y install chromium-chromedriver
   # Python
   - python --version
   - pip install -U pip
