@@ -7,21 +7,28 @@ python:
 
 addons:
   firefox: "62.0.2"
-#  chrome: stable
+  chrome: stable
   apt:
     update: true
-    packages:
-      - dpkg
+#    packages:
+#      - dpkg
  #     - chromium-chromedriver
 
 before_install:
-  - sudo apt-get update
+#  - sudo apt-get update
 # - sudo apt-get -y install firefox wget
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
   - tar -xvzf geckodriver-v0.26.0-linux64.tar.gz
   - sudo cp geckodriver /usr/local/bin/
   - sudo chmod a+x /usr/local/bin/geckodriver
+ # Install  Chromedriver latest
+  - CHROMEDRIVER_VERSION=$(wget -q -O - http://chromedriver.storage.googleapis.com/LATEST_RELEASE)
+  - wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
+  - unzip chromedriver_linux64.zip
+  - chmod +x chromedriver
+  - sudo cp geckodriver /usr/local/bin/
   - sudo apt-get -y install chromium-chromedriver
+  # Python
   - python --version
   - pip install -U pip
 # - pip install -U pytest
