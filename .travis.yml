@@ -9,7 +9,9 @@ addons:
   firefox: "62.0.2"
   chrome: stable
   apt:
+    update: true
     packages:
+      - dpkg
       - chromium-chromedriver
       - chromium-bsu
 
