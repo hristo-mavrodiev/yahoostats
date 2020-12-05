@@ -148,6 +148,39 @@ class Webscraper:
 
         return {"tr_target_pr": target_pr, "tr_change": target_change}
 
+    def tipranks_dividend(self, ticker):
+        """
+        Webscrape dividends data if available.
+        https://www.tipranks.com/stocks/intc/dividends
+        """
+
+        url_tr = f'https://www.tipranks.com/stocks/{ticker}/dividends'
+        logger.info(f'-----tipranks_dividends-----')
+        logger.info(f'Fetching data for {ticker}')
+        logger.debug(f'Using selenium on {url_tr}')
+        have_dividend = None
+        next_ex_dividend_date, dividend_amount = None, None
+
+        try:
+            self.__driver.get(url_tr)
+            time.sleep(1)
+            soup = BeautifulSoup(self.__driver.page_source, "html.parser")
+            have_dividend = soup.find('div', {
+                'class': "client-components-StockTabTemplate-NoDataWidget-NoDataWidget__textContainer"})
+            # print(have_dividend)
+            if have_dividend == None:
+                div_next_ex_dividend_date = soup.find('div', {
+                    'class': "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})
+                next_ex_dividend_date = div_next_ex_dividend_date.text
+
+                div_dividend_amount = soup.find_all(
+                    'div', {"class": "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})[1]
+                dividend_amount = div_dividend_amount.find('span')['title']
+        except Exception as exe:
+            logger.warning(f"Website changed {exe}")
+
+        return {"tr_next_ex_dividend_date": next_ex_dividend_date, "tr_dividend_amount": dividend_amount}
+
     # def simplywall(self, ticker):
     #     """
     #     https://simplywall.st/stocks/us/media/nasdaq-goog.l/alphabet
@@ -192,5 +225,6 @@ def tr_run(ticker, browser="Chrome"):
     tr.start()
     result_df = tr.tipranks_analysis((ticker))
     result_df.update(tr.tipranks_price((ticker)))
+    result_df.update(tr.tipranks_dividend((ticker)))
     tr.stop()
     return result_df

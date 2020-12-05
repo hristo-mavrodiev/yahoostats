@@ -50,8 +50,10 @@ def combine_stats(stock_list, browser="Chrome"):
         yf_pegr = tr.get_yahoo_statistics(stock)
         tr_analys = tr.tipranks_analysis((stock))
         tr_rate = tr.tipranks_price((stock))
+        tr_divid = tr.tipranks_dividend((stock))
         stock_data[stock].update(tr_analys)
         stock_data[stock].update(tr_rate)
+        stock_data[stock].update(tr_divid)
         stock_data[stock].update(yf_pegr)
 
         stock_data[stock].update(yf_rate)
