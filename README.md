@@ -147,7 +147,7 @@ Python Requirements
 -   pandas==1.0.3
 -   requests&gt;=2.21.0
 -   beautifulsoup4==4.6.3
--   urllib3==1.24.3
+-   urllib3==1.25.9
 -   selenium==3.141.0
 
 License

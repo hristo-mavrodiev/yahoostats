@@ -38,7 +38,7 @@ setup(
         'bs4 == 0.0.1',
         'beautifulsoup4 == 4.6.3',
         # 'lxml == 4.2.6',
-        'urllib3 == 1.24.3',
+        'urllib3 == 1.25.9',
         'selenium == 3.141.0'],
     project_urls={
         'Bug Reports': 'https://github.com/hristo-mavrodiev/yahoostats/issues',
