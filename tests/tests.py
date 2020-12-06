@@ -41,7 +41,7 @@ class TestMethods(unittest.TestCase):
         """
         Test of merging requests with selenium data
         """
-        stock_list = ['GOOGL', 'MU', 'NOSETETS']
+        stock_list = ['GOOGL', 'INTC', 'NOSETETS']
         self.assertTrue(combine_stats(stock_list) is not None)
 
 
