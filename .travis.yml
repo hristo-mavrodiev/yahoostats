@@ -49,7 +49,7 @@ after_success:
 
 branches:
   only:
-    - master
+    - main
     - dev
 
 notifications:
@@ -62,4 +62,4 @@ notifications:
 #     secure: TBA
 #   on:
 #     tags: true
-#     branch: master
+#     branch: main
