@@ -160,6 +160,7 @@ class Webscraper:
         logger.debug(f'Using selenium on {url_tr}')
         have_dividend = None
         next_ex_dividend_date, dividend_amount = None, None
+        ex_date1, ex_date2, ex_date3, ex_date4, ex_date5 = None, None, None, None, None
 
         try:
             self.__driver.get(url_tr)
@@ -176,10 +177,18 @@ class Webscraper:
                 div_dividend_amount = soup.find_all(
                     'div', {"class": "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})[1]
                 dividend_amount = div_dividend_amount.find('span')['title']
+
+                ex_date_table = soup.find('div', {"class": "rt-tbody"})
+                ex_date1 = ex_date_table.find_all('div', {"class": "rt-tr-group"})[0].find('div').find('div').find('div').text
+                ex_date2 = ex_date_table.find_all('div', {"class": "rt-tr-group"})[1].find('div').find('div').find('div').text
+                ex_date3 = ex_date_table.find_all('div', {"class": "rt-tr-group"})[2].find('div').find('div').find('div').text
+                ex_date4 = ex_date_table.find_all('div', {"class": "rt-tr-group"})[3].find('div').find('div').find('div').text
+                ex_date5 = ex_date_table.find_all('div', {"class": "rt-tr-group"})[4].find('div').find('div').find('div').text
         except Exception as exe:
             logger.warning(f"Website changed {exe}")
 
-        return {"tr_next_ex_dividend_date": next_ex_dividend_date, "tr_dividend_amount": dividend_amount}
+        return {"tr_next_ex_dividend_date": next_ex_dividend_date, "tr_dividend_amount": dividend_amount, 
+                "tr_ex_date1": ex_date1, "tr_ex_date2": ex_date2, "tr_ex_date3": ex_date3, "tr_ex_date4": ex_date4, "tr_ex_date5": ex_date5}
 
     # def simplywall(self, ticker):
     #     """

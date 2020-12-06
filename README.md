@@ -51,8 +51,13 @@ tr_Technicals                        Negative
 tr_Fundamentals                        17.83%
 tr_target_pr                         1482.030    Tipranks target price after 12 months
 tr_change                    ▲ (7.06% Upside)    Tipranks
-tr_next_ex_dividend_date                 None    Next Ex-dividend Date
-tr_dividend_amount                       None    Next dividend amount
+tr_next_ex_dividend_date                 None    Tipranks Next Ex-dividend Date
+tr_dividend_amount                       None    Tipranks Next dividend amount
+ex_date1                          Nov 9, 2020    Tipranks ex-dividend date history
+ex_date2                          Aug 7, 2020    Tipranks ex-dividend date history 
+ex_date3                          May 7, 2020    Tipranks ex-dividend date history
+ex_date4                          Feb 7, 2020    Tipranks ex-dividend date history
+ex_date5                          Nov 7, 2019    Tipranks ex-dividend date history
 PEG Ratio (5 yr expected) 1              1.94    Yahoo Finance PEG Ratio
 yf_price_now                          1384.34    Yahoo Finance price now
 yf_price_target                       1515.73    Yahoo Finance target price
