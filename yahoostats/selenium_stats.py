@@ -159,7 +159,7 @@ class Webscraper:
         logger.info(f'Fetching data for {ticker}')
         logger.debug(f'Using selenium on {url_tr}')
         have_dividend = None
-        next_ex_dividend_date, dividend_amount = None, None
+        tr_price, next_ex_dividend_date, dividend_amount, dividend_perc = None, None, None, None
         ex_date1, ex_date2, ex_date3, ex_date4, ex_date5 = None, None, None, None, None
 
         try:
@@ -170,13 +170,21 @@ class Webscraper:
                 'class': "client-components-StockTabTemplate-NoDataWidget-NoDataWidget__textContainer"})
             # print(have_dividend)
             if have_dividend == None:
+                tr_price_div = soup.find('div', {
+                    'class':"client-components-stock-bar-stock-bar__priceValue"})
+                tr_price = tr_price_div.find('span').text
+
                 div_next_ex_dividend_date = soup.find('div', {
                     'class': "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})
                 next_ex_dividend_date = div_next_ex_dividend_date.text
 
-                div_dividend_amount = soup.find_all(
-                    'div', {"class": "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})[1]
+                div_dividend_amount = soup.find_all('div', {
+                    "class": "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})[1]
                 dividend_amount = div_dividend_amount.find('span')['title']
+
+                div_dividend_perc = soup.find_all('div', {
+                    "class": "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})[2]
+                dividend_perc = div_dividend_perc.text
 
                 ex_date_table = soup.find('div', {"class": "rt-tbody"})
                 ex_date1 = ex_date_table.find_all('div', {"class": "rt-tr-group"})[0].find('div').find('div').find('div').text
@@ -187,8 +195,9 @@ class Webscraper:
         except Exception as exe:
             logger.warning(f"Website changed {exe}")
 
-        return {"tr_next_ex_dividend_date": next_ex_dividend_date, "tr_dividend_amount": dividend_amount, 
-                "tr_ex_date1": ex_date1, "tr_ex_date2": ex_date2, "tr_ex_date3": ex_date3, "tr_ex_date4": ex_date4, "tr_ex_date5": ex_date5}
+        return {"tr_price": tr_price, "tr_next_ex_dividend_date": next_ex_dividend_date, "tr_dividend_amount": dividend_amount, 
+                "dividend_perc": dividend_perc, "tr_ex_date1": ex_date1, "tr_ex_date2": ex_date2, 
+                "tr_ex_date3": ex_date3, "tr_ex_date4": ex_date4, "tr_ex_date5": ex_date5}
 
     # def simplywall(self, ticker):
     #     """

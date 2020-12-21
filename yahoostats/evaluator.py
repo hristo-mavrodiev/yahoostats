@@ -66,6 +66,25 @@ def combine_stats(stock_list, browser="Chrome"):
     pd_df = pd.DataFrame(stock_data)
     return pd_df
 
+def future_dividends(df):
+    """
+    Inputs:
+    ------------------
+    df - webscraped data
+
+    Outputs:
+    ------------------
+    Pandas DataFrame with future dividends calendar
+    """
+    logger.info(f'Cleaning webscraped data for for future dividends')
+    df = df.T
+    div_data = df[['tr_price','tr_next_ex_dividend_date', 'tr_dividend_amount','r_div_yield5','r_div_yield']]
+    div_data['tr_next_ex_dividend_date'] = pd.to_datetime(div_data['tr_next_ex_dividend_date'])
+    div_data = div_data.sort_values(by=['tr_next_ex_dividend_date'])
+    div_data['tr_dividend_amount'] = div_data['tr_dividend_amount'].str.replace('Currency in US Dollar','$')
+    div_data[div_data['tr_next_ex_dividend_date'] > pd.to_datetime('today')]
+    return div_data
+
 
 # if __name__ == "__main__":
 #     webscraped_data = combine_stats(stock_list)
