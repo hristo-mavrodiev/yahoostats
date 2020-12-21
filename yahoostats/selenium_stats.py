@@ -164,28 +164,44 @@ class Webscraper:
 
         try:
             self.__driver.get(url_tr)
-            time.sleep(1)
+            time.sleep(2)
             soup = BeautifulSoup(self.__driver.page_source, "html.parser")
+        except Exception as exe:
+            logger.warning(f"Unable to fetch url{url} -{ticker} -{exe}.")
+
+        try:    
             have_dividend = soup.find('div', {
                 'class': "client-components-StockTabTemplate-NoDataWidget-NoDataWidget__textContainer"})
-            # print(have_dividend)
+
             if have_dividend == None:
-                tr_price_div = soup.find('div', {
-                    'class':"client-components-stock-bar-stock-bar__priceValue"})
-                tr_price = tr_price_div.find('span').text
+                try:
+                    tr_price_div = soup.find('div', {
+                        'class':"client-components-stock-bar-stock-bar__priceValue"})
+                    tr_price = tr_price_div.find('span').text
+                except Exception as exe:
+                    logger.warning(f"Unable to fetch tr_price - {ticker} -{exe}.")
 
-                div_next_ex_dividend_date = soup.find('div', {
-                    'class': "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})
-                next_ex_dividend_date = div_next_ex_dividend_date.text
+                try:
+                    div_next_ex_dividend_date = soup.find('div', {
+                        'class': "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})
+                    next_ex_dividend_date = div_next_ex_dividend_date.text
+                except Exception as exe:
+                    logger.warning(f"Unable to fetch next_ex_dividend_date - {ticker} -{exe}.")
 
-                div_dividend_amount = soup.find_all('div', {
-                    "class": "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})[1]
-                dividend_amount = div_dividend_amount.find('span')['title']
+                try:
+                    div_dividend_amount = soup.find_all('div', {
+                        "class": "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})[1]
+                    dividend_amount = div_dividend_amount.find('span')['title']
+                except Exception as exe:
+                    logger.warning(f"Unable to fetch next_ex_dividend_date - {ticker} -{exe}.")
 
-                div_dividend_perc = soup.find_all('div', {
-                    "class": "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})[2]
-                dividend_perc = div_dividend_perc.text
-
+                try:
+                    div_dividend_perc = soup.find_all('div', {
+                        "class": "client-components-StockTabTemplate-InfoBox-InfoBox__bodySingleBoxInfo"})[2]
+                    dividend_perc = div_dividend_perc.text
+                except Exception as exe:
+                    logger.warning(f"Unable to fetch dividend_perc - {ticker} -{exe}.")
+                
                 ex_date_table = soup.find('div', {"class": "rt-tbody"})
                 ex_date1 = ex_date_table.find_all('div', {"class": "rt-tr-group"})[0].find('div').find('div').find('div').text
                 ex_date2 = ex_date_table.find_all('div', {"class": "rt-tr-group"})[1].find('div').find('div').find('div').text

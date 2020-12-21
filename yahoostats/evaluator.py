@@ -82,7 +82,7 @@ def future_dividends(df):
     div_data['tr_next_ex_dividend_date'] = pd.to_datetime(div_data['tr_next_ex_dividend_date'])
     div_data = div_data.sort_values(by=['tr_next_ex_dividend_date'])
     div_data['tr_dividend_amount'] = div_data['tr_dividend_amount'].str.replace('Currency in US Dollar','$')
-    div_data[div_data['tr_next_ex_dividend_date'] > pd.to_datetime('today')]
+    # div_data[div_data['tr_next_ex_dividend_date'] > pd.to_datetime('today')]
     return div_data
 
 
