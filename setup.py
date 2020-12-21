@@ -33,7 +33,7 @@ setup(
     ],
     python_requires='>=3.6',
     install_requires=[
-        'pandas == 1.0.3',
+        'pandas >= 1.0.3',
         'requests >= 2.21.0',
         'bs4 == 0.0.1',
         'beautifulsoup4 == 4.6.3',
