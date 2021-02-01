@@ -84,6 +84,15 @@ r_div_yield                                --    Reuters dividents yeld
 r_div_yield5                               --    Reuters dividents yeld 5 years
 r_rev_employee                   1,401,837.00    Reuters Revenue/Employee
 r_eps                                   51.27    Reuters Deluted EPS
+eps_-4q                                 12.76    Estimated EPS 2020Q1- Wall st consensus 
+eps_-3q                                 10.66    Estimated EPS 2020Q2
+eps_-2q                                  7.95    Estimated EPS 2020Q3
+eps_-1q                                 11.28    Estimated EPS 2020Q4
+eps_cur                                 15.74    Estimated EPS 2021Q1
+eps_+1q                                 13.51    Estimated EPS 2020Q2
+eps_+2q                                 14.03    Estimated EPS 2020Q3
+eps_+3q                                 16.41    Estimated EPS 2020Q4
+
 ```
 
 
