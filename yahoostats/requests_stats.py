@@ -209,7 +209,7 @@ def zacks_stats(ticker):
         rank_text = data[f'{ticker}']['zacks_rank_text']
         zacks_rate = f'{rank} - {rank_text}'
     except Exception as exe:
-         logger.warning(f'Unable to get data from zacks {exe}')
+        logger.warning(f'Unable to get data from zacks {exe}')
     return {'zacks_rate': zacks_rate}
 
 def yahoo_api_financials(ticker):
