@@ -224,6 +224,37 @@ class Webscraper:
     #     """
     #     pass
 
+    def estimize_eps(self, ticker):
+        """
+        https://www.estimize.com/{ticker}/?metric_name=eps&chart=table
+        """
+        url_ez= f'https://www.estimize.com/{ticker}/?metric_name=eps&chart=table'
+        logger.info(f'-----estimize_eps-----')
+        logger.info(f'Fetching data for {ticker}')
+        logger.debug(f'Using selenium on {url_ez}')
+        eps_0, eps_1, eps_2, eps_3 = None, None, None, None
+        eps_p1, eps_p2, eps_p3, eps_p4 = None, None, None, None
+        try:
+            self.__driver.get(url_ez)
+            time.sleep(1)
+            soup = BeautifulSoup(self.__driver.page_source, "html.parser")
+        except Exception as exe:
+            logger.warning(f"Unable to fetch url{url_ez} -{ticker} -{exe}.")
+        try:
+            wallst_data = soup.find('tbody', {"class": "rel-chart-tbl-group rel-chart-tbl-group-wall-street"}).find_all('tr')[0]
+            eps_0 = wallst_data.find_all('td')[-4].text
+            eps_1 = wallst_data.find_all('td')[-3].text
+            eps_2 = wallst_data.find_all('td')[-2].text
+            eps_3 = wallst_data.find_all('td')[-1].text
+            eps_p1 = wallst_data.find_all('td')[-5].text
+            eps_p2 = wallst_data.find_all('td')[-6].text
+            eps_p3 = wallst_data.find_all('td')[-7].text
+            eps_p4 = wallst_data.find_all('td')[-8].text
+        except Exception as exe:
+            logger.warning(f"Unable to get eps{url_ez} -{ticker} -{exe}.")
+        return {"eps_-4q": eps_p4, "eps_-3q": eps_p3, "eps_-2q": eps_p2, "eps_-1q": eps_p1,
+                "eps_cur": eps_0, "eps_+1q": eps_1, "eps_+2q": eps_2, "eps_+3q": eps_3}
+
     def scroll(self, px):
         self.__driver.execute_script(f"window.scrollTo(0, {px})")
         logger.debug(f"Scrolled with {px} px")
