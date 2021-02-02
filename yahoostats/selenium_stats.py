@@ -228,7 +228,7 @@ class Webscraper:
         """
         https://www.estimize.com/{ticker}/?metric_name=eps&chart=table
         """
-        url_ez= f'https://www.estimize.com/{ticker}/?metric_name=eps&chart=table'
+        url_ez = f'https://www.estimize.com/{ticker}/?metric_name=eps&chart=table'
         logger.info(f'-----estimize_eps-----')
         logger.info(f'Fetching data for {ticker}')
         logger.debug(f'Using selenium on {url_ez}')
