@@ -20,14 +20,14 @@ def get_page_content(url):
     """
     s = requests.Session()
     retries = Retry(total=3,
-                    backoff_factor=0.1,
+                    backoff_factor=1,
                     status_forcelist=[500, 502, 503, 504])
     s.mount('http://', HTTPAdapter(max_retries=retries))
     s.mount('https://', HTTPAdapter(max_retries=retries))
     logger.debug(f'Fetching url: {url}')
     try:
         sleep(0.01)
-        res = s.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        res = s.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=3)
         if res.status_code == requests.codes['ok']:
             return res
     except Exception as exe:
@@ -357,3 +357,23 @@ def tipranks_dividends(ticker):
     return {"tr_next_ex_dividend_date": next_ex_dividend_date, "tr_dividend_amount": dividend_amount,
             "dividend_perc": dividend_perc, "tr_ex_date1": ex_date1, "tr_ex_date2": ex_date2,
             "tr_ex_date3": ex_date3, "tr_ex_date4": ex_date4, "tr_ex_date5": ex_date5}
+
+
+def seeking_alpha(ticker):
+    """
+    URL https://seekingalpha.com/symbol/INTC/ratings/analysis_summary_data
+    """
+    url = f"https://seekingalpha.com/symbol/{ticker}/ratings/analysis_summary_data"
+    logger.info(f'-----Seeking alpha-----')
+    logger.info(f'Fetching data for {ticker}')
+    logger.debug(f'Using requests on {url}')
+    sa_rating = None
+    sa_target_price = None
+    try:
+        resp = get_page_content(url)
+        data = resp.json()
+        sa_rating = data['data']['rating']
+        sa_target_price = data['data']['target_price']
+    except Exception as exe:
+        logger.warning(f'Unable to get data from seeking_alpha {exe} - {url}')
+    return {'sa_rating': sa_rating, 'sa_target_price': sa_target_price}

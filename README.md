@@ -59,6 +59,8 @@ ex_date3                          May 7, 2020    Tipranks ex-dividend date histo
 ex_date4                          Feb 7, 2020    Tipranks ex-dividend date history
 ex_date5                          Nov 7, 2019    Tipranks ex-dividend date history
 PEG Ratio (5 yr expected) 1              1.94    Yahoo Finance PEG Ratio
+sa_rating                             3.20513    Seeking alpha rating 1(bearish) ÷ 5 bullish
+sa_target_price                       1550.73    Seeking alpha target price
 yf_price_now                          1384.34    Yahoo Finance price now
 yf_price_target                       1515.73    Yahoo Finance target price
 yf_ratingvalue                            1.8    Yahoo Finance recomendation score
