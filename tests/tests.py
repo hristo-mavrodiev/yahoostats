@@ -1,6 +1,6 @@
 import unittest
 from selenium import webdriver
-from yahoostats.selenium_stats import Webscraper, ys_run, tr_run
+from yahoostats.selenium_stats import Webscraper, ys_run
 from yahoostats.evaluator import combine_stats
 
 
