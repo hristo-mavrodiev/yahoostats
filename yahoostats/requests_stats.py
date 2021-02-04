@@ -20,14 +20,14 @@ def get_page_content(url):
     """
     s = requests.Session()
     retries = Retry(total=3,
-                    backoff_factor=0.1,
+                    backoff_factor=1,
                     status_forcelist=[500, 502, 503, 504])
     s.mount('http://', HTTPAdapter(max_retries=retries))
     s.mount('https://', HTTPAdapter(max_retries=retries))
     logger.debug(f'Fetching url: {url}')
     try:
         sleep(0.01)
-        res = s.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        res = s.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=3)
         if res.status_code == requests.codes['ok']:
             return res
     except Exception as exe:
