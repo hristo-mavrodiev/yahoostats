@@ -376,4 +376,4 @@ def seeking_alpha(ticker):
         sa_target_price = data['data']['target_price']
     except Exception as exe:
         logger.warning(f'Unable to get data from seeking_alpha {exe} - {url}')
-    return {'sa_rating':sa_rating, 'sa_target_price': sa_target_price}
+    return {'sa_rating': sa_rating, 'sa_target_price': sa_target_price}
