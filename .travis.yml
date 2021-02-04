@@ -48,9 +48,8 @@ after_success:
 #  - coveralls
 
 branches:
-  only:
-    - main
-    - dev
+  except:
+    - gh-pages
 
 notifications:
   email: false
