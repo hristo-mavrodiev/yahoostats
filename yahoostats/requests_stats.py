@@ -354,6 +354,6 @@ def tipranks_dividends(ticker):
         ex_date5 = data[5]['exDate']
     except Exception as exe:
         logger.warning(f'Unable to get data from tipranks_dividends {exe} - {url_tr}')
-    return {"tr_next_ex_dividend_date": next_ex_dividend_date, "tr_dividend_amount": dividend_amount, 
-            "dividend_perc": dividend_perc, "tr_ex_date1": ex_date1, "tr_ex_date2": ex_date2, 
+    return {"tr_next_ex_dividend_date": next_ex_dividend_date, "tr_dividend_amount": dividend_amount,
+            "dividend_perc": dividend_perc, "tr_ex_date1": ex_date1, "tr_ex_date2": ex_date2,
             "tr_ex_date3": ex_date3, "tr_ex_date4": ex_date4, "tr_ex_date5": ex_date5}

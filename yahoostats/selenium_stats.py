@@ -144,13 +144,3 @@ def ys_run(ticker, browser="Chrome"):
     result_df = (yh.get_yahoo_statistics(ticker))
     yh.stop()
     return result_df
-
-
-def tr_run(ticker, browser="Chrome"):
-    tr = Webscraper(browser)
-    tr.start()
-    result_df = tr.tipranks_analysis((ticker))
-    result_df.update(tr.tipranks_price((ticker)))
-    result_df.update(tr.tipranks_dividend((ticker)))
-    tr.stop()
-    return result_df
