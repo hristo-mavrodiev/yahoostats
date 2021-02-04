@@ -1,5 +1,5 @@
 from yahoostats.selenium_stats import Webscraper
-from yahoostats.requests_stats import yahoo_api_financials, morningstar_stats
+from yahoostats.requests_stats import yahoo_api_financials, morningstar_stats, seeking_alpha
 from yahoostats.requests_stats import zacks_stats, filter_reuters, reuters_stats
 from yahoostats.requests_stats import tipranks_price, tipranks_analysis, tipranks_dividends
 import configparser
@@ -50,6 +50,7 @@ def combine_stats(stock_list, browser="Chrome"):
         tr_analys = tipranks_analysis(stock)
         tr_rate = tipranks_price(stock)
         tr_divid = tipranks_dividends(stock)
+        sa_rate = seeking_alpha(stock)
 
         yf_pegr = tr.get_yahoo_statistics(stock)
         wallst_eps = tr.estimize_eps(stock)
@@ -57,6 +58,7 @@ def combine_stats(stock_list, browser="Chrome"):
         stock_data[stock].update(tr_rate)
         stock_data[stock].update(tr_divid)
         stock_data[stock].update(yf_pegr)
+        stock_data[stock].update(sa_rate)
 
         stock_data[stock].update(yf_rate)
         stock_data[stock].update(ms_rate)
