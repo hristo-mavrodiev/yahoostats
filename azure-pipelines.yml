@@ -23,7 +23,7 @@ jobs:
     maxParallel: 1
     matrix:
         Python36-64bit-full:
-          python.version: '3.6'
+          python.version: '3.9'
           python.arch: 'x64'
 
   steps:
@@ -61,10 +61,10 @@ jobs:
     maxParallel: 1
     matrix:
         Python36-32bit-full:
-          python.version: '3.6'
+          python.version: '3.9'
           python.arch: 'x86'
         Python36-64bit-full:
-          python.version: '3.6'
+          python.version: '3.9'
           python.arch: 'x64'
   steps:
   - task: UsePythonVersion@0
@@ -103,7 +103,7 @@ jobs:
     maxParallel: 1
     matrix:
         Python36-64bit-full:
-          python.version: '3.6'
+          python.version: '3.9'
           python.arch: 'x64'
 
   steps:

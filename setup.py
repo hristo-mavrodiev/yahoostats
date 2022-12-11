@@ -36,8 +36,8 @@ setup(
         'pandas>=1.5.2',
         'requests>=2.28.1',
         'tenacity>=8.1.0',
-        'bs4 == 0.0.1',
-        'beautifulsoup4 == 4.6.3',
+        'bs4 >= 0.0.1',
+        'beautifulsoup4 >= 4.11.1',
         # 'lxml == 4.2.6',
         ],
     project_urls={

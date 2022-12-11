@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 Response = requests.models.Response
 
 @retry(wait=wait_fixed(3), stop=stop_after_attempt(3))
-def get_page_content(url: str) -> Response | None:
+def get_page_content(url: str) -> Union[Response, None]:
     """Function to get data from url with retry between attempts.
 
     Parameters
