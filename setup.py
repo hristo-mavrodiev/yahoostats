@@ -15,13 +15,14 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name="yahoostats",
-    version="0.0.4",
+    version="0.0.5",
     author="Hristo Mavrodiev",
     author_email="h.mavrodiev@abv.bg",
     description="Yahoo statistics webscraper",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/hristo-mavrodiev/yahoostats",
+    include_package_data=True,
     packages=find_packages(),
     classifiers=[
         'Development Status :: 3 - Alpha',

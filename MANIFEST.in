@@ -5,6 +5,7 @@ include README.rst
 include *.md
 include *.rst
 include *.ini
+include *.json
 
 graft tests
 graft examples
